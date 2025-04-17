@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22E261" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="BookCollectionEntity" representedClassName="BookCollectionEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="bookIds" optional="YES" attributeType="String" comment="Comma separated list of book IDs"/>
+        <attribute name="collectionDescription" optional="YES" attributeType="String"/>
+        <attribute name="coverUrls" optional="YES" attributeType="String" comment="Comma separated list of cover image URLs"/>
+        <attribute name="createdDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="filterOptionsData" optional="YES" attributeType="Binary" comment="Serialized FilterOption array"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isDefault" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isSharedWithPartner" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="lastModifiedDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="ownerId" attributeType="String"/>
+        <attribute name="ownerUsername" attributeType="String"/>
+        <attribute name="sortOptionData" optional="YES" attributeType="Binary" comment="Serialized SortOption"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="BookEntity" representedClassName="BookEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="authors" optional="YES" attributeType="String" comment="Comma separated list of authors"/>
+        <attribute name="bookDescription" optional="YES" attributeType="String"/>
+        <attribute name="bookmarksData" optional="YES" attributeType="Binary" comment="Serialized bookmarks array"/>
+        <attribute name="categories" optional="YES" attributeType="String" comment="Comma separated list of categories"/>
+        <attribute name="completedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="currentPage" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="dateAdded" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="highlightsData" optional="YES" attributeType="Binary" comment="Serialized highlights array"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isFavorite" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isSharedWithPartner" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isbn" optional="YES" attributeType="String"/>
+        <attribute name="language" optional="YES" attributeType="String"/>
+        <attribute name="lastReadAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="lastReadingSessionDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="notesData" optional="YES" attributeType="Binary" comment="Serialized notes array"/>
+        <attribute name="pageCount" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="partnerNotes" optional="YES" attributeType="String"/>
+        <attribute name="progressData" optional="YES" attributeType="Binary" comment="Serialized ReadingProgress object"/>
+        <attribute name="publishedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="publisher" optional="YES" attributeType="String"/>
+        <attribute name="readingSessionsData" optional="YES" attributeType="Binary" comment="Serialized reading sessions array"/>
+        <attribute name="readingStatus" optional="YES" attributeType="String"/>
+        <attribute name="readingTime" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="recommendedBy" optional="YES" attributeType="String"/>
+        <attribute name="recommendedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="sharedCollectionIds" optional="YES" attributeType="String" comment="Comma separated list of collection IDs"/>
+        <attribute name="smallThumbnailUrl" optional="YES" attributeType="String"/>
+        <attribute name="startedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="subtitle" optional="YES" attributeType="String"/>
+        <attribute name="thumbnailUrl" optional="YES" attributeType="String"/>
+        <attribute name="title" attributeType="String"/>
+        <attribute name="userNotes" optional="YES" attributeType="String"/>
+        <attribute name="userRating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="PartnershipEntity" representedClassName="PartnershipEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="activityNotificationsData" optional="YES" attributeType="Binary" comment="Serialized activity notifications array"/>
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="lastActivityAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="partnerId" attributeType="String"/>
+        <attribute name="partnerUsername" attributeType="String"/>
+        <attribute name="sharedBookIds" optional="YES" attributeType="String" comment="Comma separated list of shared book IDs"/>
+        <attribute name="status" attributeType="String"/>
+        <attribute name="updatedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="userId" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="ReadingActivityEntity" representedClassName="ReadingActivityEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="activityType" attributeType="String"/>
+        <attribute name="bookId" attributeType="String"/>
+        <attribute name="bookTitle" attributeType="String"/>
+        <attribute name="coverImageUrl" optional="YES" attributeType="String"/>
+        <attribute name="description" attributeType="String"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="timestamp" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="userId" attributeType="String"/>
+        <attribute name="username" attributeType="String"/>
+    </entity>
+    <entity name="UserEntity" representedClassName="UserEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="bio" optional="YES" attributeType="String"/>
+        <attribute name="email" attributeType="String"/>
+        <attribute name="favoriteGenres" optional="YES" attributeType="String" comment="Comma separated list of genres"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isPartnershipActive" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="joinDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="lastActive" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="notificationsEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="partnerId" optional="YES" attributeType="String"/>
+        <attribute name="partnerProfileImageUrl" optional="YES" attributeType="String"/>
+        <attribute name="partnerUsername" optional="YES" attributeType="String"/>
+        <attribute name="preferencesData" optional="YES" attributeType="Binary" comment="Serialized user preferences"/>
+        <attribute name="privacySettingsData" optional="YES" attributeType="Binary" comment="Serialized privacy settings"/>
+        <attribute name="profileImageUrl" optional="YES" attributeType="String"/>
+        <attribute name="readingGoalData" optional="YES" attributeType="Binary" comment="Serialized reading goal"/>
+        <attribute name="statisticsData" optional="YES" attributeType="Binary" comment="Serialized reading statistics"/>
+        <attribute name="themePreference" attributeType="String" defaultValueString="system"/>
+        <attribute name="username" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+            <uniquenessConstraint>
+                <constraint value="email"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="UserAchievementEntity" representedClassName="UserAchievementEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="description" attributeType="String"/>
+        <attribute name="icon" attributeType="String"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isUnlocked" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="title" attributeType="String"/>
+        <attribute name="unlockedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="userId" attributeType="String"/>
+    </entity>
+</model> 
