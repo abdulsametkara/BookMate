@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct HomeView: View {
-    @ObservedObject var bookViewModel: BookViewModel
-    @ObservedObject var userViewModel: UserViewModel
+    @EnvironmentObject var bookViewModel: BookViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     
     @State private var showingSearchSheet = false
     @State private var selectedTab = 0

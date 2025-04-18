@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StatsView: View {
+    @EnvironmentObject var bookViewModel: BookViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     @State private var selectedTimeRange = 0
     

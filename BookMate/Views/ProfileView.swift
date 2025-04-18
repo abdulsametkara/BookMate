@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @EnvironmentObject var bookViewModel: BookViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     @State private var isEditingProfile = false
     

@@ -230,52 +230,50 @@ class UserViewModel: ObservableObject {
         dataManager.saveReadingActivity(activity)
     }
     
+    // Örnek kullanıcı yükleme (geliştirme aşamasında)
     private func loadSampleUser() {
-        let readingGoal = ReadingGoal(
-            target: 30, 
-            progress: 12, 
-            type: .books, 
-            deadline: Date().addingTimeInterval(30*24*60*60),
-            isCompleted: false
-        )
-        
-        let stats = ReadingStatistics(
-            totalBooksRead: 48,
-            booksReadThisYear: 12,
-            averageRating: 4.2,
-            totalPagesRead: 12450,
-            readingStreak: 7
-        )
-        
-        currentUser = User(
-            id: "user1",
-            username: "abdulsamed",
-            email: "abdulsamed@example.com",
-            hasPartner: true,
-            partnerId: "partner1",
-            readingGoal: readingGoal,
-            statistics: stats
-        )
-        
-        // Sample partner activities
-        partnerActivities = [
-            PartnerActivity(
-                id: "pa1",
-                partnerId: "partner1",
-                partnerName: "Eşiniz",
-                type: .finishedBook,
-                bookTitle: "1984",
-                timestamp: Date().addingTimeInterval(-2*24*60*60)
+        let sampleUser = User(
+            id: "current_user_id",
+            username: "AhmetYılmaz",
+            email: "ahmet@example.com",
+            profileImageUrl: nil,
+            bio: "Kitap okumayı seven ve eşimle birlikte okuma deneyimini paylaşmaktan keyif alan biriyim.",
+            joinDate: Date().addingTimeInterval(-90*24*60*60), // 90 gün önce
+            lastActive: Date(),
+            favoriteGenres: ["Klasik", "Bilim Kurgu", "Fantastik"],
+            readingGoal: ReadingGoal(
+                type: .booksPerYear,
+                target: 24,
+                progress: 8,
+                startDate: Date().startOfYear,
+                endDate: Date().endOfYear
             ),
-            PartnerActivity(
-                id: "pa2",
-                partnerId: "partner1",
-                partnerName: "Eşiniz",
-                type: .startedBook,
-                bookTitle: "Suç ve Ceza",
-                timestamp: Date().addingTimeInterval(-4*24*60*60)
+            statistics: ReadingStatistics(
+                totalBooksRead: 32,
+                booksReadThisMonth: 2,
+                booksReadThisYear: 8,
+                totalPagesRead: 9870,
+                pagesReadThisMonth: 450,
+                averageRating: 4.2,
+                favoriteTopic: "Tarih",
+                readingStreak: 14,
+                longestStreak: 21
+            ),
+            partnerId: "partner_user_id",
+            partnerUsername: "AyşeYılmaz",
+            isPartnershipActive: true,
+            appTheme: .system,
+            notificationsEnabled: true,
+            privacySettings: PrivacySettings(
+                shareReadingProgress: true,
+                shareNotes: true,
+                shareStats: true,
+                shareActivity: true
             )
-        ]
+        )
+        
+        self.currentUser = sampleUser
+        self.isLoggedIn = true
     }
     
     func login(username: String, password: String) {

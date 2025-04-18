@@ -194,126 +194,105 @@ class BookViewModel: ObservableObject {
     
     // This is for development/testing only
     private func loadSampleBooks() {
-        let sampleBooks = [
-            Book(
-                id: UUID().uuidString,
-                title: "1984",
-                authors: ["George Orwell"],
-                coverImageUrl: nil,
-                description: "Büyük Birader sizi izliyor. Totaliter bir distopya romanı.",
-                isbn: "978-0451524935",
-                pageCount: 328,
-                publishedDate: nil,
-                publisher: "Signet Classic",
-                categories: ["Distopya", "Klasik"],
-                language: "en",
-                userProgress: ReadingProgress(
-                    currentPage: 156,
-                    totalPages: 328,
-                    startedAt: Date().addingTimeInterval(-30*24*60*60), // 30 days ago
-                    lastReadAt: Date().addingTimeInterval(-2*24*60*60), // 2 days ago
-                    completedAt: nil,
-                    readingStatus: .inProgress,
-                    minutesRead: 340
-                ),
-                rating: 4.5,
-                notes: [
-                    ReadingNote(
-                        id: UUID().uuidString,
-                        userId: "current-user-id",
-                        bookId: UUID().uuidString,
-                        page: 42,
-                        content: "Big Brother kavramı günümüzde de çok geçerli.",
-                        createdAt: Date().addingTimeInterval(-15*24*60*60),
-                        updatedAt: nil,
-                        isSharedWithPartner: true
-                    )
-                ],
-                isSharedWithPartner: true,
-                addedToLibraryAt: Date().addingTimeInterval(-45*24*60*60)
-            ),
-            Book(
-                id: UUID().uuidString,
-                title: "Dönüşüm",
-                authors: ["Franz Kafka"],
-                coverImageUrl: nil,
-                description: "Gregor Samsa bir sabah kendini dev bir böceğe dönüşmüş olarak bulur.",
-                isbn: "978-0553213690",
-                pageCount: 160,
-                publishedDate: nil,
-                publisher: "Vintage",
-                categories: ["Klasik", "Kurgu"],
-                language: "tr",
-                userProgress: ReadingProgress(
-                    currentPage: 160,
-                    totalPages: 160,
-                    startedAt: Date().addingTimeInterval(-90*24*60*60), // 90 days ago
-                    lastReadAt: Date().addingTimeInterval(-60*24*60*60), // 60 days ago
-                    completedAt: Date().addingTimeInterval(-60*24*60*60), // 60 days ago
-                    readingStatus: .completed,
-                    minutesRead: 420
-                ),
-                rating: 4.0,
-                notes: [],
-                isSharedWithPartner: false,
-                addedToLibraryAt: Date().addingTimeInterval(-100*24*60*60)
-            ),
-            Book(
-                id: UUID().uuidString,
-                title: "Suç ve Ceza",
-                authors: ["Fyodor Dostoyevski"],
-                coverImageUrl: nil,
-                description: "Raskolnikov'un işlediği cinayet sonrası yaşadığı vicdani sorgulamaları anlatır.",
-                isbn: "978-0143058142",
-                pageCount: 671,
-                publishedDate: nil,
-                publisher: "Penguin Classics",
-                categories: ["Klasik", "Psikolojik"],
-                language: "tr",
-                userProgress: ReadingProgress(
-                    currentPage: 0,
-                    totalPages: 671,
-                    startedAt: nil,
-                    lastReadAt: nil,
-                    completedAt: nil,
-                    readingStatus: .notStarted,
-                    minutesRead: 0
-                ),
-                rating: nil,
-                notes: [],
-                isSharedWithPartner: false,
-                addedToLibraryAt: Date().addingTimeInterval(-10*24*60*60)
-            ),
-            Book(
-                id: UUID().uuidString,
-                title: "Simyacı",
-                authors: ["Paulo Coelho"],
-                coverImageUrl: nil,
-                description: "Santiago'nun kişisel efsanesini keşfetmek için çıktığı yolculuğu anlatır.",
-                isbn: "978-0062315007",
-                pageCount: 184,
-                publishedDate: nil,
-                publisher: "HarperOne",
-                categories: ["Felsefe", "Roman"],
-                language: "tr",
-                userProgress: ReadingProgress(
-                    currentPage: 100,
-                    totalPages: 184,
-                    startedAt: Date().addingTimeInterval(-20*24*60*60), // 20 days ago
-                    lastReadAt: Date().addingTimeInterval(-1*24*60*60), // yesterday
-                    completedAt: nil,
-                    readingStatus: .inProgress,
-                    minutesRead: 210
-                ),
-                rating: 4.5,
-                notes: [],
-                isSharedWithPartner: true,
-                addedToLibraryAt: Date().addingTimeInterval(-25*24*60*60)
-            )
-        ]
+        let sampleBook1 = Book(
+            id: UUID().uuidString,
+            isbn: "9780451524935",
+            title: "1984",
+            subtitle: "Distopik Roman",
+            authors: ["George Orwell"],
+            publisher: "Signet Classic",
+            publishedDate: nil,
+            description: "Öncü distopik bir roman, totaliter bir hükümetin kontrol ettiği bir toplumu anlatır.",
+            pageCount: 328,
+            categories: ["Kurgu", "Klasikler", "Distopya"],
+            imageLinks: BookImageLinks(thumbnail: "https://covers.openlibrary.org/b/id/8231579-M.jpg", large: "https://covers.openlibrary.org/b/id/8231579-L.jpg"),
+            language: "tr",
+            dateAdded: Date(),
+            startedReading: Date().addingTimeInterval(-30*24*60*60),
+            finishedReading: nil,
+            currentPage: 156,
+            readingStatus: .inProgress,
+            isFavorite: true,
+            userRating: 4.7,
+            userNotes: "Bu kitabı eşimle birlikte okuyoruz, harika bir deneyim.",
+            highlightedPassages: [],
+            bookmarks: [],
+            readingTime: 1240*60,
+            lastReadingSession: Date().addingTimeInterval(-2*24*60*60),
+            readingSessions: [],
+            recommendedBy: nil,
+            recommendedDate: nil,
+            sharedCollectionIds: [],
+            partnerNotes: nil
+        )
         
-        self.books = sampleBooks
-        self.userLibrary = sampleBooks
-        self.updateBookCollections()
+        let sampleBook2 = Book(
+            id: UUID().uuidString,
+            isbn: "9780140283334",
+            title: "Suç ve Ceza",
+            subtitle: "Psikolojik Roman",
+            authors: ["Fyodor Dostoyevski"],
+            publisher: "Penguin Classics",
+            publishedDate: nil,
+            description: "Raskolnikov adlı bir öğrencinin psikolojik ve ahlaki çatışmalarını anlatan klasik bir roman.",
+            pageCount: 671,
+            categories: ["Klasikler", "Kurgu", "Psikolojik"],
+            imageLinks: BookImageLinks(thumbnail: "https://covers.openlibrary.org/b/id/8412383-M.jpg", large: "https://covers.openlibrary.org/b/id/8412383-L.jpg"),
+            language: "tr",
+            dateAdded: Date().addingTimeInterval(-60*24*60*60),
+            startedReading: Date().addingTimeInterval(-50*24*60*60),
+            finishedReading: Date().addingTimeInterval(-5*24*60*60),
+            currentPage: 671,
+            readingStatus: .finished,
+            isFavorite: true,
+            userRating: 5.0,
+            userNotes: "Şimdiye kadar okuduğum en etkileyici kitaplardan biri.",
+            highlightedPassages: [],
+            bookmarks: [],
+            readingTime: 3600*60,
+            lastReadingSession: Date().addingTimeInterval(-5*24*60*60),
+            readingSessions: [],
+            recommendedBy: nil,
+            recommendedDate: nil,
+            sharedCollectionIds: [],
+            partnerNotes: nil
+        )
+        
+        let sampleBook3 = Book(
+            id: UUID().uuidString,
+            isbn: "9780316219266",
+            title: "İkigai: Japonların Uzun ve Mutlu Yaşam Sırrı",
+            subtitle: "Kişisel Gelişim",
+            authors: ["Hector Garcia", "Francesc Miralles"],
+            publisher: "Penguin Life",
+            publishedDate: nil,
+            description: "Japonların mutlu ve anlamlı bir yaşam sürmek için kullandıkları ikigai kavramını anlatan kitap.",
+            pageCount: 208,
+            categories: ["Kişisel Gelişim", "Psikoloji", "Felsefe"],
+            imageLinks: BookImageLinks(thumbnail: "https://covers.openlibrary.org/b/id/8231579-M.jpg", large: "https://covers.openlibrary.org/b/id/8231579-L.jpg"),
+            language: "tr",
+            dateAdded: Date().addingTimeInterval(-10*24*60*60),
+            startedReading: nil,
+            finishedReading: nil,
+            currentPage: 0,
+            readingStatus: .notStarted,
+            isFavorite: false,
+            userRating: nil,
+            userNotes: nil,
+            highlightedPassages: [],
+            bookmarks: [],
+            readingTime: 0,
+            lastReadingSession: nil,
+            readingSessions: [],
+            recommendedBy: "Eşim",
+            recommendedDate: Date().addingTimeInterval(-10*24*60*60),
+            sharedCollectionIds: [],
+            partnerNotes: "Bu kitabı birlikte okuyabiliriz. İçeriği çok ilgi çekici."
+        )
+        
+        books = [sampleBook1, sampleBook2, sampleBook3]
+        userLibrary = books
+        currentlyReadingBooks = [sampleBook1]
+        recentlyAddedBooks = [sampleBook3, sampleBook1, sampleBook2]
     }
 } 

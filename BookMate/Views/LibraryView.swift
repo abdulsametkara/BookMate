@@ -2,8 +2,8 @@ import SwiftUI
 import SceneKit
 
 struct LibraryView: View {
-    @ObservedObject var bookViewModel: BookViewModel
-    @ObservedObject var userViewModel: UserViewModel
+    @EnvironmentObject var bookViewModel: BookViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
     
     @State private var viewMode: LibraryViewMode = .grid
     @State private var selectedCollection: BookCollection?
