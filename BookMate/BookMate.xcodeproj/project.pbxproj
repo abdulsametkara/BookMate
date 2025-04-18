@@ -3,20 +3,66 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		1A1A1A1A1A1A1A1A1A1A1A1A /* BookMateApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A1A1A1A1A1A1A1A1A1A1B /* BookMateApp.swift */; };
-/* End PBXBuildFile section */
+/* Begin PBXContainerItemProxy section */
+		B676E07B2DB24356007FD810 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B676E0652DB24352007FD810 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B676E06C2DB24352007FD810;
+			remoteInfo = BookMate;
+		};
+		B676E0852DB24356007FD810 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B676E0652DB24352007FD810 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B676E06C2DB24352007FD810;
+			remoteInfo = BookMate;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1A1A1A1A1A1A1A1A1A1A1A1A /* BookMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1A1A1A1A1A1A1A1A1A1A1A1B /* BookMateApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookMateApp.swift; sourceTree = "<group>"; };
+		B676E06D2DB24352007FD810 /* BookMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B676E07A2DB24356007FD810 /* BookMateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BookMateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B676E0842DB24356007FD810 /* BookMateUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BookMateUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B676E06F2DB24352007FD810 /* BookMate */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BookMate;
+			sourceTree = "<group>";
+		};
+		B676E07D2DB24356007FD810 /* BookMateTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BookMateTests;
+			sourceTree = "<group>";
+		};
+		B676E0872DB24356007FD810 /* BookMateUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BookMateUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
-		1A1A1A1A1A1A1A1A1A1A1A1C /* Frameworks */ = {
+		B676E06A2DB24352007FD810 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B676E0772DB24356007FD810 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B676E0812DB24356007FD810 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -26,85 +72,157 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1A1A1A1A1A1A1A1A1A1A1A1D /* Products */ = {
+		B676E0642DB24352007FD810 = {
 			isa = PBXGroup;
 			children = (
-				1A1A1A1A1A1A1A1A1A1A1A1A /* BookMate.app */,
+				B676E06F2DB24352007FD810 /* BookMate */,
+				B676E07D2DB24356007FD810 /* BookMateTests */,
+				B676E0872DB24356007FD810 /* BookMateUITests */,
+				B676E06E2DB24352007FD810 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B676E06E2DB24352007FD810 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B676E06D2DB24352007FD810 /* BookMate.app */,
+				B676E07A2DB24356007FD810 /* BookMateTests.xctest */,
+				B676E0842DB24356007FD810 /* BookMateUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		1A1A1A1A1A1A1A1A1A1A1A1E /* BookMate */ = {
-			isa = PBXGroup;
-			children = (
-				1A1A1A1A1A1A1A1A1A1A1A1B /* BookMateApp.swift */,
-			);
-			path = BookMate;
-			sourceTree = "<group>";
-		};
-		1A1A1A1A1A1A1A1A1A1A1A1F = {
-			isa = PBXGroup;
-			children = (
-				1A1A1A1A1A1A1A1A1A1A1A1E /* BookMate */,
-				1A1A1A1A1A1A1A1A1A1A1A1D /* Products */,
-			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1A1A1A1A1A1A1A1A1A1A1A2A /* BookMate */ = {
+		B676E06C2DB24352007FD810 /* BookMate */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1A1A1A1A1A1A1A1A1A1A1A2B /* Build configuration list for PBXNativeTarget "BookMate" */;
+			buildConfigurationList = B676E08E2DB24356007FD810 /* Build configuration list for PBXNativeTarget "BookMate" */;
 			buildPhases = (
-				1A1A1A1A1A1A1A1A1A1A1A1C /* Frameworks */,
-				1A1A1A1A1A1A1A1A1A1A1A2C /* Sources */,
-				1A1A1A1A1A1A1A1A1A1A1A2D /* Resources */,
+				B676E0692DB24352007FD810 /* Sources */,
+				B676E06A2DB24352007FD810 /* Frameworks */,
+				B676E06B2DB24352007FD810 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				B676E06F2DB24352007FD810 /* BookMate */,
+			);
 			name = BookMate;
+			packageProductDependencies = (
+			);
 			productName = BookMate;
-			productReference = 1A1A1A1A1A1A1A1A1A1A1A1A /* BookMate.app */;
+			productReference = B676E06D2DB24352007FD810 /* BookMate.app */;
 			productType = "com.apple.product-type.application";
+		};
+		B676E0792DB24356007FD810 /* BookMateTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B676E0912DB24356007FD810 /* Build configuration list for PBXNativeTarget "BookMateTests" */;
+			buildPhases = (
+				B676E0762DB24356007FD810 /* Sources */,
+				B676E0772DB24356007FD810 /* Frameworks */,
+				B676E0782DB24356007FD810 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B676E07C2DB24356007FD810 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B676E07D2DB24356007FD810 /* BookMateTests */,
+			);
+			name = BookMateTests;
+			packageProductDependencies = (
+			);
+			productName = BookMateTests;
+			productReference = B676E07A2DB24356007FD810 /* BookMateTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B676E0832DB24356007FD810 /* BookMateUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B676E0942DB24356007FD810 /* Build configuration list for PBXNativeTarget "BookMateUITests" */;
+			buildPhases = (
+				B676E0802DB24356007FD810 /* Sources */,
+				B676E0812DB24356007FD810 /* Frameworks */,
+				B676E0822DB24356007FD810 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B676E0862DB24356007FD810 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B676E0872DB24356007FD810 /* BookMateUITests */,
+			);
+			name = BookMateUITests;
+			packageProductDependencies = (
+			);
+			productName = BookMateUITests;
+			productReference = B676E0842DB24356007FD810 /* BookMateUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		1A1A1A1A1A1A1A1A1A1A1A2E /* Project object */ = {
+		B676E0652DB24352007FD810 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastSwiftUpdateCheck = 1630;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
-					1A1A1A1A1A1A1A1A1A1A1A2A = {
-						CreatedOnToolsVersion = 15.0;
+					B676E06C2DB24352007FD810 = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					B676E0792DB24356007FD810 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = B676E06C2DB24352007FD810;
+					};
+					B676E0832DB24356007FD810 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = B676E06C2DB24352007FD810;
 					};
 				};
 			};
-			buildConfigurationList = 1A1A1A1A1A1A1A1A1A1A1A2F /* Build configuration list for PBXProject "BookMate" */;
-			compatibilityVersion = "Xcode 14.0";
+			buildConfigurationList = B676E0682DB24352007FD810 /* Build configuration list for PBXProject "BookMate" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 1A1A1A1A1A1A1A1A1A1A1A1F;
-			productRefGroup = 1A1A1A1A1A1A1A1A1A1A1A1D /* Products */;
+			mainGroup = B676E0642DB24352007FD810;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = B676E06E2DB24352007FD810 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1A1A1A1A1A1A1A1A1A1A1A2A /* BookMate */,
+				B676E06C2DB24352007FD810 /* BookMate */,
+				B676E0792DB24356007FD810 /* BookMateTests */,
+				B676E0832DB24356007FD810 /* BookMateUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		1A1A1A1A1A1A1A1A1A1A1A2D /* Resources */ = {
+		B676E06B2DB24352007FD810 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B676E0782DB24356007FD810 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B676E0822DB24356007FD810 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -114,18 +232,44 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		1A1A1A1A1A1A1A1A1A1A1A2C /* Sources */ = {
+		B676E0692DB24352007FD810 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A1A1A1A1A1A1A1A1A1A1A1A /* BookMateApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B676E0762DB24356007FD810 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B676E0802DB24356007FD810 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		B676E07C2DB24356007FD810 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B676E06C2DB24352007FD810 /* BookMate */;
+			targetProxy = B676E07B2DB24356007FD810 /* PBXContainerItemProxy */;
+		};
+		B676E0862DB24356007FD810 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B676E06C2DB24352007FD810 /* BookMate */;
+			targetProxy = B676E0852DB24356007FD810 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
-		1A1A1A1A1A1A1A1A1A1A1A3A /* Debug */ = {
+		B676E08C2DB24356007FD810 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -177,7 +321,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -188,7 +332,7 @@
 			};
 			name = Debug;
 		};
-		1A1A1A1A1A1A1A1A1A1A1A3B /* Release */ = {
+		B676E08D2DB24356007FD810 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -234,7 +378,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -244,14 +388,13 @@
 			};
 			name = Release;
 		};
-		1A1A1A1A1A1A1A1A1A1A1A3C /* Debug */ = {
+		B676E08F2DB24356007FD810 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -264,7 +407,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.BookMate;
+				PRODUCT_BUNDLE_IDENTIFIER = com.abdulsametkara.BookMate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -272,14 +415,13 @@
 			};
 			name = Debug;
 		};
-		1A1A1A1A1A1A1A1A1A1A1A3D /* Release */ = {
+		B676E0902DB24356007FD810 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -292,7 +434,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.BookMate;
+				PRODUCT_BUNDLE_IDENTIFIER = com.abdulsametkara.BookMate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -300,28 +442,114 @@
 			};
 			name = Release;
 		};
+		B676E0922DB24356007FD810 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.abdulsametkara.BookMateTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookMate.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookMate";
+			};
+			name = Debug;
+		};
+		B676E0932DB24356007FD810 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.abdulsametkara.BookMateTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookMate.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookMate";
+			};
+			name = Release;
+		};
+		B676E0952DB24356007FD810 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.abdulsametkara.BookMateUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BookMate;
+			};
+			name = Debug;
+		};
+		B676E0962DB24356007FD810 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.abdulsametkara.BookMateUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BookMate;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1A1A1A1A1A1A1A1A1A1A1A2B /* Build configuration list for PBXNativeTarget "BookMate" */ = {
+		B676E0682DB24352007FD810 /* Build configuration list for PBXProject "BookMate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				1A1A1A1A1A1A1A1A1A1A1A3C /* Debug */,
-				1A1A1A1A1A1A1A1A1A1A1A3D /* Release */,
+				B676E08C2DB24356007FD810 /* Debug */,
+				B676E08D2DB24356007FD810 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1A1A1A1A1A1A1A1A1A1A1A2F /* Build configuration list for PBXProject "BookMate" */ = {
+		B676E08E2DB24356007FD810 /* Build configuration list for PBXNativeTarget "BookMate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				1A1A1A1A1A1A1A1A1A1A1A3A /* Debug */,
-				1A1A1A1A1A1A1A1A1A1A1A3B /* Release */,
+				B676E08F2DB24356007FD810 /* Debug */,
+				B676E0902DB24356007FD810 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B676E0912DB24356007FD810 /* Build configuration list for PBXNativeTarget "BookMateTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B676E0922DB24356007FD810 /* Debug */,
+				B676E0932DB24356007FD810 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B676E0942DB24356007FD810 /* Build configuration list for PBXNativeTarget "BookMateUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B676E0952DB24356007FD810 /* Debug */,
+				B676E0962DB24356007FD810 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 1A1A1A1A1A1A1A1A1A1A1A2E /* Project object */;
-} 
+	rootObject = B676E0652DB24352007FD810 /* Project object */;
+}
