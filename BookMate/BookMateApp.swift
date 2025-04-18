@@ -1,3 +1,9 @@
+// BookMateApp.swift
+// BookMate
+//
+// Created by abdulsamed on 18.04.2025.
+//
+
 import SwiftUI
 import CoreData
 
@@ -6,13 +12,15 @@ struct BookMateApp: App {
     // Core Data konfigürasyonu için AppDelegate
     @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
     
+    // View model'leri oluştur
+    @StateObject private var bookViewModel = BookViewModel()
+    @StateObject private var userViewModel = UserViewModel()
+    
     var body: some Scene {
         WindowGroup {
-            AuthenticationView()
-                .onAppear {
-                    // Core Data'yı başlat
-                    _ = CoreDataManager.shared
-                }
+            ContentView()
+                .environmentObject(bookViewModel)
+                .environmentObject(userViewModel)
         }
     }
 }

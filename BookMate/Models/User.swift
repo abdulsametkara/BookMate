@@ -514,4 +514,29 @@ struct PrivacySettings: Codable, Equatable {
             }
         }
     }
+}
+
+struct PartnerActivity: Identifiable, Codable {
+    var id: String
+    var partnerId: String
+    var partnerName: String
+    var type: ActivityType
+    var bookTitle: String
+    var timestamp: Date
+    
+    enum ActivityType: String, Codable {
+        case startedBook
+        case finishedBook
+        case reachedMilestone
+        case sharedBook
+        
+        var description: String {
+            switch self {
+            case .startedBook: return "okumaya başladı"
+            case .finishedBook: return "okudu"
+            case .reachedMilestone: return "hedefine ulaştı"
+            case .sharedBook: return "paylaştı"
+            }
+        }
+    }
 } 

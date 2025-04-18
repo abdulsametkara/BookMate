@@ -11,6 +11,8 @@ class BookViewModel: ObservableObject {
     @Published var currentlyReadingBooks: [Book] = []
     @Published var userLibrary: [Book] = []
     @Published var partnerSharedBooks: [Book] = []
+    @Published var recommendedBooks: [Book] = []
+    @Published var searchResults: [Book] = []
     
     // Services would be injected through dependency injection
     private let bookService: BookServiceProtocol

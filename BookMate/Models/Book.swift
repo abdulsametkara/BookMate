@@ -671,4 +671,31 @@ extension Book {
             )
         ]
     }
+}
+
+enum BookStatus: String, Codable {
+    case toRead = "To Read"
+    case reading = "Reading"
+    case finished = "Finished"
+}
+
+struct Book: Identifiable, Codable {
+    var id: String
+    var title: String
+    var author: String
+    var coverURL: String
+    var description: String
+    var pageCount: Int
+    var currentPage: Int
+    var status: BookStatus
+    var dateAdded: Date
+    var lastRead: Date
+    
+    var progressPercentage: Double {
+        return Double(currentPage) / Double(max(1, pageCount)) * 100
+    }
+    
+    var isCompleted: Bool {
+        return status == .finished || currentPage >= pageCount
+    }
 } 

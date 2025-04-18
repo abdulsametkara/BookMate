@@ -6,6 +6,7 @@ class UserViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var partnerActivities: [ReadingActivity] = []
+    @Published var isLoggedIn: Bool = false
     
     private var cancellables = Set<AnyCancellable>()
     private let dataManager = CoreDataManager.shared
@@ -19,6 +20,7 @@ class UserViewModel: ObservableObject {
         
         loadUser()
         loadPartnerActivities()
+        loadSampleUser()
     }
     
     func loadUser() {
@@ -226,5 +228,64 @@ class UserViewModel: ObservableObject {
         )
         
         dataManager.saveReadingActivity(activity)
+    }
+    
+    private func loadSampleUser() {
+        let readingGoal = ReadingGoal(
+            target: 30, 
+            progress: 12, 
+            type: .books, 
+            deadline: Date().addingTimeInterval(30*24*60*60),
+            isCompleted: false
+        )
+        
+        let stats = ReadingStatistics(
+            totalBooksRead: 48,
+            booksReadThisYear: 12,
+            averageRating: 4.2,
+            totalPagesRead: 12450,
+            readingStreak: 7
+        )
+        
+        currentUser = User(
+            id: "user1",
+            username: "abdulsamed",
+            email: "abdulsamed@example.com",
+            hasPartner: true,
+            partnerId: "partner1",
+            readingGoal: readingGoal,
+            statistics: stats
+        )
+        
+        // Sample partner activities
+        partnerActivities = [
+            PartnerActivity(
+                id: "pa1",
+                partnerId: "partner1",
+                partnerName: "Eşiniz",
+                type: .finishedBook,
+                bookTitle: "1984",
+                timestamp: Date().addingTimeInterval(-2*24*60*60)
+            ),
+            PartnerActivity(
+                id: "pa2",
+                partnerId: "partner1",
+                partnerName: "Eşiniz",
+                type: .startedBook,
+                bookTitle: "Suç ve Ceza",
+                timestamp: Date().addingTimeInterval(-4*24*60*60)
+            )
+        ]
+    }
+    
+    func login(username: String, password: String) {
+        // In a real app, this would authenticate against a backend
+        // For now, we just use the sample data
+        isLoggedIn = true
+    }
+    
+    func logout() {
+        isLoggedIn = false
+        currentUser = nil
     }
 } 
