@@ -49,8 +49,7 @@ class UserViewModel: ObservableObject {
                 shareReadingProgress: true,
                 shareNotes: true,
                 shareStats: true,
-                shareActivity: true,
-                isProfilePublic: true
+                shareActivity: true
             )
         )
         

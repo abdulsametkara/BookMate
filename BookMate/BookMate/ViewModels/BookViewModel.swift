@@ -91,4 +91,19 @@ class BookViewModel: ObservableObject {
             }
         }
     }
+    
+    // Kitabı "şu an okunuyor" olarak işaretler
+    func markAsCurrentlyReading(_ book: Book) {
+        // Önce şu an okunan kitabı varsa onun durumunu güncelle
+        if let current = currentlyReadingBook, let index = userLibrary.firstIndex(where: { $0.id == current.id }) {
+            userLibrary[index].readingStatus = .notStarted
+        }
+        
+        // Yeni kitabı "okunuyor" olarak işaretle
+        if let index = userLibrary.firstIndex(where: { $0.id == book.id }) {
+            userLibrary[index].readingStatus = .inProgress
+            userLibrary[index].startedReading = Date()
+            userLibrary[index].lastReadAt = Date()
+        }
+    }
 } 

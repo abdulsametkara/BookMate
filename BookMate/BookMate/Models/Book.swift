@@ -53,16 +53,16 @@ struct Book: Identifiable, Codable, Equatable {
     var readingProgressPercentage: Double = 0
     var userNotes: String?
     
-    // Tracking properties
+    // Fiyat bilgileri
+    var price: Double?
+    var currency: String?
+    
+    // Takip özellikleri
     var startedReading: Date?
     var finishedReading: Date?
     var currentPage: Int?
     var lastReadAt: Date?
     var dateAdded: Date? = Date()
-    
-    // Price information
-    var price: Double?
-    var currency: String?
     
     // Hesaplanmış özellikler
     var authorsText: String {
@@ -83,7 +83,7 @@ struct Book: Identifiable, Codable, Equatable {
         lhs.id == rhs.id
     }
     
-    // Sample data for development
+    // Örnek kitaplar
     static var samples: [Book] = [
         Book(
             id: UUID(),
@@ -98,8 +98,14 @@ struct Book: Identifiable, Codable, Equatable {
             publisher: "Harper Perennial",
             language: "en",
             readingStatus: .inProgress,
-            readingProgressPercentage: 0.45,
-            userNotes: "Loving this classic so far!"
+            readingProgressPercentage: 45,
+            userNotes: "Loving this classic so far!",
+            price: 12.99,
+            currency: "USD",
+            startedReading: Date().addingTimeInterval(-7*24*60*60), // bir hafta önce
+            finishedReading: nil,
+            currentPage: 150,
+            lastReadAt: Date().addingTimeInterval(-24*60*60) // dün
         ),
         Book(
             id: UUID(),
@@ -115,7 +121,9 @@ struct Book: Identifiable, Codable, Equatable {
             language: "en",
             readingStatus: .notStarted,
             readingProgressPercentage: 0,
-            userNotes: nil
+            userNotes: nil,
+            price: 9.99,
+            currency: "USD"
         ),
         Book(
             id: UUID(),
@@ -130,8 +138,14 @@ struct Book: Identifiable, Codable, Equatable {
             publisher: "Doubleday",
             language: "en",
             readingStatus: .finished,
-            readingProgressPercentage: 1.0,
-            userNotes: "One of King's best works!"
+            readingProgressPercentage: 100,
+            userNotes: "One of King's best works!",
+            price: 14.99,
+            currency: "USD",
+            startedReading: Date().addingTimeInterval(-30*24*60*60), // bir ay önce
+            finishedReading: Date().addingTimeInterval(-15*24*60*60), // iki hafta önce
+            currentPage: 447,
+            lastReadAt: Date().addingTimeInterval(-15*24*60*60) // iki hafta önce
         )
     ]
 }
@@ -187,7 +201,13 @@ extension Book {
             language: bookInfo.language,
             readingStatus: .notStarted,
             readingProgressPercentage: 0,
-            userNotes: nil
+            userNotes: nil,
+            price: nil,
+            currency: nil,
+            startedReading: nil,
+            finishedReading: nil,
+            currentPage: nil,
+            lastReadAt: nil
         )
     }
 }
@@ -252,7 +272,16 @@ extension GoogleBookItem {
             imageLinks: volumeInfo.imageLinks?.toImageLinks(),
             publishedDate: volumeInfo.publishedDate,
             publisher: volumeInfo.publisher,
-            language: volumeInfo.language
+            language: volumeInfo.language,
+            readingStatus: .notStarted,
+            readingProgressPercentage: 0,
+            userNotes: nil,
+            price: nil,
+            currency: nil,
+            startedReading: nil,
+            finishedReading: nil,
+            currentPage: nil,
+            lastReadAt: nil
         )
     }
 } 

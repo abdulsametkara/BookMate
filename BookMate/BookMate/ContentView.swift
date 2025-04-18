@@ -10,28 +10,33 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var bookViewModel = BookViewModel()
     @StateObject var userViewModel = BookMate.UserViewModel()
+    @State var selectedTab: Int = 0
     
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             HomeView()
                 .tabItem {
                     Label("Ana Sayfa", systemImage: "house.fill")
                 }
+                .tag(0)
             
             LibraryView()
                 .tabItem {
                     Label("Kütüphane", systemImage: "books.vertical.fill")
                 }
+                .tag(1)
             
             WishlistView()
                 .tabItem {
                     Label("İstek Listem", systemImage: "heart.fill")
                 }
+                .tag(2)
             
             ProfileView()
                 .tabItem {
                     Label("Profil", systemImage: "person.fill")
                 }
+                .tag(3)
         }
         .environmentObject(bookViewModel)
         .environmentObject(userViewModel)

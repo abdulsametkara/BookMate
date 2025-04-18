@@ -10,17 +10,17 @@ struct User: Identifiable, Codable, Equatable {
     var lastActive: Date
     
     var favoriteGenres: [String]
-    var readingGoal: BookMate.ReadingGoal?
-    var statistics: BookMate.ReadingStatistics?
+    var readingGoal: ReadingGoal?
+    var statistics: ReadingStatistics?
     
     var partnerId: String?
     var partnerUsername: String?
     var partnerProfileImageUrl: URL?
     var isPartnershipActive: Bool
     
-    var appTheme: BookMate.AppTheme
+    var appTheme: AppTheme
     var notificationsEnabled: Bool
-    var privacySettings: BookMate.PrivacySettings
+    var privacySettings: PrivacySettings
     
     var hasPartner: Bool {
         return partnerId != nil && isPartnershipActive

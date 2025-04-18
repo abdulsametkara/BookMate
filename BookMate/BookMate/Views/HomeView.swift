@@ -93,6 +93,7 @@ struct HomeView: View {
                     currentlyReadingCard(currentBook)
                         .padding(.horizontal, 20)
                 }
+                .buttonStyle(PlainButtonStyle())
             } else {
                 // Okunan kitap yoksa, boş durum mesajı göster
                 emptyReadingState
@@ -184,7 +185,10 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(bookViewModel.recentlyAddedBooks) { book in
-                        recentBookCard(book)
+                        NavigationLink(destination: BookDetailView(book: book)) {
+                            recentBookCard(book)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
                 .padding(.horizontal, 20)
@@ -315,31 +319,44 @@ struct HomeView: View {
     
     // İstatistikler bölümü
     private var statisticsSection: some View {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(spacing: 10) {
             Text("Okuma İstatistikleri")
                 .font(.title3)
                 .fontWeight(.bold)
                 .padding(.horizontal, 20)
+                .padding(.top, 10)
             
+            // İstatistik kartları
             HStack(spacing: 15) {
                 // Toplam kitap
-                statCard(
-                    title: "Toplam Kitap",
-                    value: "\(bookViewModel.allBooks.count)",
-                    icon: "books.vertical",
-                    color: primaryColor
-                )
+                NavigationLink(destination: LibraryView()) {
+                    statCard(
+                        title: "Toplam Kitap",
+                        value: "\(bookViewModel.allBooks.count)",
+                        icon: "books.vertical",
+                        color: primaryColor
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
                 
                 // Tamamlanan kitap
-                statCard(
-                    title: "Tamamlanan",
-                    value: "\(bookViewModel.completedBooks.count)",
-                    icon: "checkmark.circle",
-                    color: .green
-                )
+                NavigationLink(destination: CompletedBooksView()) {
+                    statCard(
+                        title: "Tamamlanan",
+                        value: "\(bookViewModel.completedBooks.count)",
+                        icon: "checkmark.circle",
+                        color: .green
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
             }
             .padding(.horizontal, 20)
+            .padding(.bottom, 20)
         }
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(.horizontal, 20)
     }
     
     // İstatistik kartı
