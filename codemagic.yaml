@@ -5,22 +5,34 @@ workflows:
     max_build_duration: 60
     environment:
       vars:
-        XCODE_WORKSPACE: "BookMate.xcworkspace"
-        XCODE_SCHEME: "BookMate"
+        XCODE_WORKSPACE: "BookMate.xcworkspace"  # Dosya adını doğru yazdığınızdan emin olun
+        XCODE_SCHEME: "BookMate"  # Scheme adını doğru yazdığınızdan emin olun
       xcode: latest
       cocoapods: default
     scripts:
+      - name: Debug info
+        script: |
+          ls -la
+          # Projenin kök dizinindeki dosyaları listele
+          
       - name: Install dependencies
         script: |
           if [ -f "Podfile" ]; then
             pod install
           fi
+          
       - name: Build iOS app for simulator (no signing required)
         script: |
+          # Daha ayrıntılı hata ayıklama için
+          set -x
+          xcodebuild -list
+          # Mevcut tüm proje, hedef ve scheme'leri listeler
+          
           xcodebuild build -workspace "$XCODE_WORKSPACE" -scheme "$XCODE_SCHEME" \
             -configuration Debug \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 14,OS=latest'
+            -destination 'platform=iOS Simulator,name=iPhone 14,OS=latest' \
+            -verbose
     artifacts:
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
