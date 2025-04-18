@@ -1,68 +1,258 @@
 import Foundation
 
-enum ReadingStatus: String, Codable, CaseIterable {
-    case notStarted = "not_started"
-    case inProgress = "in_progress"
-    case onHold = "on_hold"
-    case finished = "finished"
-    case abandoned = "abandoned"
+enum ReadingStatus: String, Codable {
+    case notStarted = "NOT_STARTED"
+    case inProgress = "IN_PROGRESS"
+    case finished = "FINISHED"
+    
+    var displayName: String {
+        switch self {
+        case .notStarted:
+            return "Okumaya Başlanmadı"
+        case .inProgress:
+            return "Okunuyor"
+        case .finished:
+            return "Okundu"
+        }
+    }
+    
+    var systemImageName: String {
+        switch self {
+        case .notStarted:
+            return "book.closed"
+        case .inProgress:
+            return "book"
+        case .finished:
+            return "book.fill"
+        }
+    }
+}
+
+struct ImageLinks: Codable, Equatable {
+    let small: String?
+    let thumbnail: String?
+    let medium: String?
+    let large: String?
 }
 
 struct Book: Identifiable, Codable, Equatable {
-    let id: String
+    var id: UUID
     let isbn: String?
-    var title: String
-    var subtitle: String?
-    var authors: [String]?
-    var publisher: String?
-    var publishedDate: Date?
-    var description: String?
-    var pageCount: Int?
-    var categories: [String]?
-    var imageLinks: BookImageLinks?
-    var language: String?
+    let title: String
+    let authors: [String]
+    let description: String?
+    let pageCount: Int?
+    let categories: [String]?
+    let imageLinks: ImageLinks?
+    let publishedDate: String?
+    let publisher: String?
+    let language: String?
     
-    // Kullanıcı özellikleri
-    var dateAdded: Date
-    var startedReading: Date?
-    var finishedReading: Date?
-    var currentPage: Int
-    var readingStatus: ReadingStatus
-    var isFavorite: Bool
-    var userRating: Double?
+    // Kullanıcı tarafından değiştirilebilen özellikler
+    var readingStatus: ReadingStatus = .notStarted
+    var readingProgressPercentage: Double = 0
     var userNotes: String?
     
-    // Okuma bilgileri
-    var readingTime: TimeInterval?
-    var lastReadingSession: Date?
+    // Tracking properties
+    var startedReading: Date?
+    var finishedReading: Date?
+    var currentPage: Int?
+    var lastReadAt: Date?
+    var dateAdded: Date? = Date()
     
-    // Partner bilgileri
-    var recommendedBy: String?
-    var recommendedDate: Date?
-    var partnerNotes: String?
+    // Price information
+    var price: Double?
+    var currency: String?
     
-    // Hesaplanan özellikler
-    var formattedAuthors: String {
-        return authors?.joined(separator: ", ") ?? "Bilinmeyen Yazar"
+    // Hesaplanmış özellikler
+    var authorsText: String {
+        authors.joined(separator: ", ")
     }
     
-    var readingProgressPercentage: Double {
-        guard let pageCount = pageCount, pageCount > 0 else {
-            return 0.0
+    var thumbnailURL: URL? {
+        if let urlString = imageLinks?.thumbnail {
+            // Google Books API bazen http:// döndürüyor, https:// ile değiştir
+            let secureUrlString = urlString.replacingOccurrences(of: "http://", with: "https://")
+            return URL(string: secureUrlString)
         }
-        
-        return min(Double(currentPage) / Double(pageCount) * 100.0, 100.0)
+        return nil
     }
     
-    var isCompleted: Bool {
-        return readingStatus == .finished
-    }
-    
-    var isCurrentlyReading: Bool {
-        return readingStatus == .inProgress
-    }
-    
+    // Eşitlik kontrolü
     static func == (lhs: Book, rhs: Book) -> Bool {
-        return lhs.id == rhs.id
+        lhs.id == rhs.id
+    }
+    
+    // Sample data for development
+    static var samples: [Book] = [
+        Book(
+            id: UUID(),
+            isbn: "9780060935467",
+            title: "To Kill a Mockingbird",
+            authors: ["Harper Lee"],
+            description: "A classic of modern American literature.",
+            pageCount: 336,
+            categories: ["Fiction", "Classics"],
+            imageLinks: ImageLinks(small: nil, thumbnail: "https://books.google.com/books/content?id=PGR2AwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api", medium: nil, large: nil),
+            publishedDate: "1960-07-11",
+            publisher: "Harper Perennial",
+            language: "en",
+            readingStatus: .inProgress,
+            readingProgressPercentage: 0.45,
+            userNotes: "Loving this classic so far!"
+        ),
+        Book(
+            id: UUID(),
+            isbn: "9780743273565",
+            title: "The Great Gatsby",
+            authors: ["F. Scott Fitzgerald"],
+            description: "The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald.",
+            pageCount: 180,
+            categories: ["Fiction", "Classics"],
+            imageLinks: ImageLinks(small: nil, thumbnail: "https://books.google.com/books/content?id=iXn5U2IzVH0C&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api", medium: nil, large: nil),
+            publishedDate: "1925-04-10",
+            publisher: "Scribner",
+            language: "en",
+            readingStatus: .notStarted,
+            readingProgressPercentage: 0,
+            userNotes: nil
+        ),
+        Book(
+            id: UUID(),
+            isbn: "9780450040184",
+            title: "The Shining",
+            authors: ["Stephen King"],
+            description: "The Shining is a horror novel by American author Stephen King.",
+            pageCount: 447,
+            categories: ["Fiction", "Horror"],
+            imageLinks: ImageLinks(small: nil, thumbnail: "https://books.google.com/books/content?id=1vy0mQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api", medium: nil, large: nil),
+            publishedDate: "1977-01-28",
+            publisher: "Doubleday",
+            language: "en",
+            readingStatus: .finished,
+            readingProgressPercentage: 1.0,
+            userNotes: "One of King's best works!"
+        )
+    ]
+}
+
+// JSON veri işleme yardımcıları
+extension Book {
+    struct GoogleBooksResponse: Decodable {
+        let items: [VolumeInfo]
+        
+        struct VolumeInfo: Decodable {
+            let volumeInfo: BookInfo
+            
+            struct BookInfo: Decodable {
+                let title: String
+                let authors: [String]?
+                let description: String?
+                let pageCount: Int?
+                let categories: [String]?
+                let imageLinks: ImageLinks?
+                let publishedDate: String?
+                let publisher: String?
+                let language: String?
+                let industryIdentifiers: [IndustryIdentifier]?
+                
+                struct IndustryIdentifier: Decodable {
+                    let type: String
+                    let identifier: String
+                }
+            }
+        }
+    }
+    
+    // Google Books API'den kitap verilerini Book nesnesine dönüştürür
+    static func fromGoogleBooksAPI(_ item: GoogleBooksResponse.VolumeInfo) -> Book {
+        let bookInfo = item.volumeInfo
+        
+        // ISBN'i bulmaya çalış
+        let isbn = bookInfo.industryIdentifiers?.first(where: { 
+            $0.type == "ISBN_13" || $0.type == "ISBN_10" 
+        })?.identifier
+        
+        return Book(
+            id: UUID(),
+            isbn: isbn,
+            title: bookInfo.title,
+            authors: bookInfo.authors ?? ["Yazar Belirtilmemiş"],
+            description: bookInfo.description,
+            pageCount: bookInfo.pageCount,
+            categories: bookInfo.categories,
+            imageLinks: bookInfo.imageLinks,
+            publishedDate: bookInfo.publishedDate,
+            publisher: bookInfo.publisher,
+            language: bookInfo.language,
+            readingStatus: .notStarted,
+            readingProgressPercentage: 0,
+            userNotes: nil
+        )
+    }
+}
+
+// API'den dönen kitap verisi için DTO (Data Transfer Object)
+struct GoogleBookResponse: Codable {
+    let items: [GoogleBookItem]?
+    let totalItems: Int
+}
+
+struct GoogleBookItem: Codable {
+    let id: String
+    let volumeInfo: VolumeInfo
+}
+
+struct VolumeInfo: Codable {
+    let title: String
+    let authors: [String]?
+    let publisher: String?
+    let publishedDate: String?
+    let description: String?
+    let industryIdentifiers: [IndustryIdentifier]?
+    let pageCount: Int?
+    let categories: [String]?
+    let imageLinks: GoogleImageLinks?
+    let language: String?
+}
+
+struct IndustryIdentifier: Codable {
+    let type: String
+    let identifier: String
+}
+
+struct GoogleImageLinks: Codable {
+    let smallThumbnail: String?
+    let thumbnail: String?
+    
+    // ImageLinks'e dönüştürme
+    func toImageLinks() -> ImageLinks {
+        return ImageLinks(
+            small: smallThumbnail,
+            thumbnail: thumbnail,
+            medium: nil,
+            large: nil
+        )
+    }
+}
+
+extension GoogleBookItem {
+    func toBook() -> Book {
+        let isbn = volumeInfo.industryIdentifiers?.first(where: { $0.type == "ISBN_13" })?.identifier
+            ?? volumeInfo.industryIdentifiers?.first(where: { $0.type == "ISBN_10" })?.identifier
+        
+        return Book(
+            id: UUID(),
+            isbn: isbn,
+            title: volumeInfo.title,
+            authors: volumeInfo.authors ?? ["Bilinmeyen Yazar"],
+            description: volumeInfo.description,
+            pageCount: volumeInfo.pageCount,
+            categories: volumeInfo.categories,
+            imageLinks: volumeInfo.imageLinks?.toImageLinks(),
+            publishedDate: volumeInfo.publishedDate,
+            publisher: volumeInfo.publisher,
+            language: volumeInfo.language
+        )
     }
 } 

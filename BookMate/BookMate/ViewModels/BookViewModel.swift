@@ -2,108 +2,93 @@ import Foundation
 import Combine
 
 class BookViewModel: ObservableObject {
-    @Published var books: [Book] = []
+    @Published var allBooks: [Book] = []
     @Published var userLibrary: [Book] = []
-    @Published var currentlyReadingBooks: [Book] = []
-    @Published var recentlyAddedBooks: [Book] = []
+    @Published var wishlistBooks: [Book] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
     init() {
-        loadSampleBooks()
+        loadBooks()
     }
     
-    private func loadSampleBooks() {
-        let sampleBook1 = Book(
-            id: UUID().uuidString,
-            isbn: "9780451524935",
-            title: "1984",
-            subtitle: "Distopik Roman",
-            authors: ["George Orwell"],
-            publisher: "Signet Classic",
-            publishedDate: nil,
-            description: "Öncü distopik bir roman, totaliter bir hükümetin kontrol ettiği bir toplumu anlatır.",
-            pageCount: 328,
-            categories: ["Kurgu", "Klasikler", "Distopya"],
-            imageLinks: BookImageLinks(thumbnail: "https://covers.openlibrary.org/b/id/8231579-M.jpg", 
-                                      large: "https://covers.openlibrary.org/b/id/8231579-L.jpg"),
-            language: "tr",
-            dateAdded: Date(),
-            startedReading: Date().addingTimeInterval(-30*24*60*60),
-            finishedReading: nil,
-            currentPage: 156,
-            readingStatus: .inProgress,
-            isFavorite: true,
-            userRating: 4.7,
-            userNotes: "Bu kitabı eşimle birlikte okuyoruz, harika bir deneyim.",
-            readingTime: 1240*60,
-            lastReadingSession: Date().addingTimeInterval(-2*24*60*60),
-            recommendedBy: nil,
-            recommendedDate: nil,
-            partnerNotes: nil
-        )
-        
-        let sampleBook2 = Book(
-            id: UUID().uuidString,
-            isbn: "9780140283334",
-            title: "Suç ve Ceza",
-            subtitle: "Psikolojik Roman",
-            authors: ["Fyodor Dostoyevski"],
-            publisher: "Penguin Classics",
-            publishedDate: nil,
-            description: "Raskolnikov adlı bir öğrencinin psikolojik ve ahlaki çatışmalarını anlatan klasik bir roman.",
-            pageCount: 671,
-            categories: ["Klasikler", "Kurgu", "Psikolojik"],
-            imageLinks: BookImageLinks(thumbnail: "https://covers.openlibrary.org/b/id/8412383-M.jpg", 
-                                      large: "https://covers.openlibrary.org/b/id/8412383-L.jpg"),
-            language: "tr",
-            dateAdded: Date().addingTimeInterval(-60*24*60*60),
-            startedReading: Date().addingTimeInterval(-50*24*60*60),
-            finishedReading: Date().addingTimeInterval(-5*24*60*60),
-            currentPage: 671,
-            readingStatus: .finished,
-            isFavorite: true,
-            userRating: 5.0,
-            userNotes: "Şimdiye kadar okuduğum en etkileyici kitaplardan biri.",
-            readingTime: 3600*60,
-            lastReadingSession: Date().addingTimeInterval(-5*24*60*60),
-            recommendedBy: nil,
-            recommendedDate: nil,
-            partnerNotes: nil
-        )
-        
-        let sampleBook3 = Book(
-            id: UUID().uuidString,
-            isbn: "9780316219266",
-            title: "İkigai: Japonların Uzun ve Mutlu Yaşam Sırrı",
-            subtitle: "Kişisel Gelişim",
-            authors: ["Hector Garcia", "Francesc Miralles"],
-            publisher: "Penguin Life",
-            publishedDate: nil,
-            description: "Japonların mutlu ve anlamlı bir yaşam sürmek için kullandıkları ikigai kavramını anlatan kitap.",
-            pageCount: 208,
-            categories: ["Kişisel Gelişim", "Psikoloji", "Felsefe"],
-            imageLinks: BookImageLinks(thumbnail: "https://covers.openlibrary.org/b/id/8231579-M.jpg", 
-                                      large: "https://covers.openlibrary.org/b/id/8231579-L.jpg"),
-            language: "tr",
-            dateAdded: Date().addingTimeInterval(-10*24*60*60),
-            startedReading: nil,
-            finishedReading: nil,
-            currentPage: 0,
-            readingStatus: .notStarted,
-            isFavorite: false,
-            userRating: nil,
-            userNotes: nil,
-            readingTime: 0,
-            lastReadingSession: nil,
-            recommendedBy: "Eşim",
-            recommendedDate: Date().addingTimeInterval(-10*24*60*60),
-            partnerNotes: "Bu kitabı birlikte okuyabiliriz. İçeriği çok ilgi çekici."
-        )
-        
-        books = [sampleBook1, sampleBook2, sampleBook3]
-        userLibrary = books
-        currentlyReadingBooks = [sampleBook1]
-        recentlyAddedBooks = [sampleBook3, sampleBook1, sampleBook2]
+    private func loadBooks() {
+        // Örnek kitaplar
+        allBooks = Book.samples
+        userLibrary = allBooks
+    }
+    
+    // MARK: - Computed Properties
+    
+    var currentlyReadingBook: Book? {
+        userLibrary.first { $0.readingStatus == .inProgress }
+    }
+    
+    var recentlyAddedBooks: [Book] {
+        userLibrary.sorted { (book1: Book, book2: Book) -> Bool in
+            return (book1.dateAdded ?? Date()) > (book2.dateAdded ?? Date())
+        }.prefix(5).map { $0 }
+    }
+    
+    var completedBooks: [Book] {
+        userLibrary.filter { $0.readingStatus == .finished }
+    }
+    
+    // MARK: - Wishlist Functions
+    
+    func addToWishlist(_ book: Book) {
+        guard !isInWishlist(book) else { return }
+        wishlistBooks.append(book)
+    }
+    
+    func removeFromWishlist(_ book: Book) {
+        wishlistBooks.removeAll { $0.id == book.id }
+    }
+    
+    func isInWishlist(_ book: Book) -> Bool {
+        wishlistBooks.contains { $0.id == book.id }
+    }
+    
+    func addToLibrary(_ book: Book) {
+        guard !userLibrary.contains(where: { $0.id == book.id }) else { return }
+        userLibrary.append(book)
+    }
+    
+    // MARK: - Book Management Functions
+    
+    func updateBookStatus(_ book: Book, status: ReadingStatus) {
+        if let index = userLibrary.firstIndex(where: { $0.id == book.id }) {
+            userLibrary[index].readingStatus = status
+            
+            // Update startedReading or finishedReading dates based on status
+            if status == .inProgress && userLibrary[index].startedReading == nil {
+                userLibrary[index].startedReading = Date()
+            } else if status == .finished && userLibrary[index].finishedReading == nil {
+                userLibrary[index].finishedReading = Date()
+            }
+        }
+    }
+    
+    func updateCurrentPage(_ book: Book, page: Int) {
+        if let index = userLibrary.firstIndex(where: { $0.id == book.id }) {
+            userLibrary[index].currentPage = page
+            userLibrary[index].lastReadAt = Date()
+            
+            // If book wasn't in progress, update status
+            if userLibrary[index].readingStatus != .inProgress {
+                userLibrary[index].readingStatus = .inProgress
+                
+                // Set startedReading if not already set
+                if userLibrary[index].startedReading == nil {
+                    userLibrary[index].startedReading = Date()
+                }
+            }
+            
+            // If current page equals page count, mark as finished
+            if page >= (book.pageCount ?? 1) {
+                userLibrary[index].readingStatus = .finished
+                userLibrary[index].finishedReading = Date()
+            }
+        }
     }
 } 

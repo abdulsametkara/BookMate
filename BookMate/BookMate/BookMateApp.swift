@@ -12,7 +12,10 @@ import CoreData
 struct BookMateApp: App {
     // View model'leri oluştur
     @StateObject private var bookViewModel = BookViewModel()
-    @StateObject private var userViewModel = UserViewModel()
+    // Use a local variable to avoid ambiguity
+    @StateObject private var userViewModel: BookMate.UserViewModel = {
+        return BookMate.UserViewModel()
+    }()
     
     var body: some Scene {
         WindowGroup {

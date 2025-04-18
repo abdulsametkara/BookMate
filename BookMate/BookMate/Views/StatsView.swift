@@ -2,7 +2,7 @@ import SwiftUI
 
 struct StatsView: View {
     @EnvironmentObject var bookViewModel: BookViewModel
-    @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var userViewModel: BookMate.UserViewModel
     
     var body: some View {
         NavigationView {
@@ -127,7 +127,9 @@ struct StatCard: View {
 }
 
 #Preview {
-    StatsView()
-        .environmentObject(BookViewModel())
-        .environmentObject(UserViewModel())
+    let bookVM = BookViewModel()
+    let userVM = BookMate.UserViewModel()
+    return StatsView()
+        .environmentObject(bookVM)
+        .environmentObject(userVM)
 } 
