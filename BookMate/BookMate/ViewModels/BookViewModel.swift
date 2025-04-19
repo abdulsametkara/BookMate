@@ -10,12 +10,72 @@ class BookViewModel: ObservableObject {
     
     init() {
         loadBooks()
+        
+        // Allbooks'a tüm örnek kitapları ekleyelim
+        print("BookViewModel başlatıldı, kitap sayısı: \(allBooks.count)")
+        
+        // Arama için ekstra kitaplar ekleyelim
+        addSampleBooksForSearch()
     }
     
     private func loadBooks() {
         // Örnek kitaplar
         allBooks = Book.samples
         userLibrary = allBooks
+        print("Örnek kitaplar yüklendi: \(allBooks.count) kitap")
+    }
+    
+    // Arama için çeşitli örnek kitaplar ekleyelim
+    private func addSampleBooksForSearch() {
+        // Popüler kitaplar listesi - arama için daha fazla seçenek
+        let extraSampleBooks: [Book] = [
+            Book(
+                id: UUID(),
+                isbn: "9780439023481",
+                title: "Açlık Oyunları",
+                authors: ["Suzanne Collins"],
+                description: "Açlık Oyunları, Suzanne Collins tarafından yazılmış distopik bir macera romanıdır.",
+                pageCount: 374,
+                categories: ["Genç Yetişkin", "Distopya", "Bilim Kurgu"],
+                imageLinks: ImageLinks(small: nil, thumbnail: "https://covers.openlibrary.org/b/id/8231446-M.jpg", medium: nil, large: nil),
+                publishedDate: "2008-09-14",
+                publisher: "Scholastic",
+                language: "tr",
+                readingStatus: .notStarted
+            ),
+            Book(
+                id: UUID(),
+                isbn: "9789750719387",
+                title: "Harry Potter ve Felsefe Taşı",
+                authors: ["J.K. Rowling"],
+                description: "Harry Potter serisinin ilk kitabı.",
+                pageCount: 276,
+                categories: ["Fantastik", "Macera"],
+                imageLinks: ImageLinks(small: nil, thumbnail: "https://covers.openlibrary.org/b/id/8234463-M.jpg", medium: nil, large: nil),
+                publishedDate: "1997-06-26",
+                publisher: "Yapı Kredi Yayınları",
+                language: "tr",
+                readingStatus: .notStarted
+            ),
+            Book(
+                id: UUID(),
+                isbn: "9789753424080",
+                title: "Yüzüklerin Efendisi: Yüzük Kardeşliği",
+                authors: ["J.R.R. Tolkien"],
+                description: "Yüzüklerin Efendisi üçlemesinin ilk kitabı.",
+                pageCount: 423,
+                categories: ["Fantastik", "Macera"],
+                imageLinks: ImageLinks(small: nil, thumbnail: "https://covers.openlibrary.org/b/id/8472751-M.jpg", medium: nil, large: nil),
+                publishedDate: "1954-07-29",
+                publisher: "Metis Yayınları",
+                language: "tr",
+                readingStatus: .notStarted
+            )
+        ]
+        
+        // Kitapları tüm listelere ekle
+        allBooks.append(contentsOf: extraSampleBooks)
+        print("Arama için ek örnek kitaplar eklendi. Toplam kitap sayısı: \(allBooks.count)")
     }
     
     // MARK: - Computed Properties
@@ -55,6 +115,29 @@ class BookViewModel: ObservableObject {
     }
     
     // MARK: - Book Management Functions
+    
+    func addBook(_ book: Book) {
+        // Kitabın zaten kütüphanede olup olmadığını kontrol et
+        if userLibrary.contains(where: { $0.title == book.title && (book.authors.first ?? "") == ($0.authors.first ?? "") }) {
+            print("Bu kitap zaten kütüphanenizde var.")
+            return
+        }
+        
+        // Kitabı şu anki tarihle birlikte ekle
+        var newBook = book
+        newBook.dateAdded = Date()
+        newBook.lastReadAt = Date()
+        
+        // Kütüphaneye ekle
+        userLibrary.append(newBook)
+        
+        // Tüm kitaplar listesine de ekle (eğer zaten yoksa)
+        if !allBooks.contains(where: { $0.id == book.id }) {
+            allBooks.append(newBook)
+        }
+        
+        print("Kitap başarıyla eklendi: \(book.title)")
+    }
     
     func updateBookStatus(_ book: Book, status: ReadingStatus) {
         if let index = userLibrary.firstIndex(where: { $0.id == book.id }) {

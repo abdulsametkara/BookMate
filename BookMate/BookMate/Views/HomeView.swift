@@ -9,6 +9,8 @@ struct HomeView: View {
     private let secondaryColor = Color.orange
     private let backgroundColor = Color(.systemGroupedBackground)
     
+    @State private var showingSearchSheet = false
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -49,6 +51,19 @@ struct HomeView: View {
             
             Spacer()
             
+            // Arama butonu
+            Button(action: {
+                showingSearchSheet = true
+            }) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 22))
+                    .foregroundColor(primaryColor)
+                    .padding(8)
+                    .background(Color(.systemGray6))
+                    .clipShape(Circle())
+            }
+            .padding(.trailing, 8)
+            
             // Profil resmi ve navigasyon
             NavigationLink(destination: ProfileView()) {
                 if let photoURL = userViewModel.currentUser?.profilePhotoURL,
@@ -77,6 +92,10 @@ struct HomeView: View {
             }
         }
         .padding(.horizontal, 20)
+        .sheet(isPresented: $showingSearchSheet) {
+            BookSearchView()
+                .environmentObject(bookViewModel)
+        }
     }
     
     // Şu an okunan kitap bölümü

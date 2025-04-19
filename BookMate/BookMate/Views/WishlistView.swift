@@ -214,66 +214,156 @@ struct AddToWishlistView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
+            VStack(spacing: 0) {
                 // Arama çubuğu
                 HStack {
-                    TextField("Kitap ara...", text: $searchText)
-                        .padding(8)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
-                        .padding(.trailing, 8)
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
                     
-                    Button("Ara") {
-                        if !searchText.isEmpty {
-                            searchBooks()
+                    TextField("Kitap adı, yazar veya ISBN ara", text: $searchText)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                    
+                    if !searchText.isEmpty {
+                        Button(action: {
+                            searchText = ""
+                            searchResults = []
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
                         }
                     }
-                    .disabled(searchText.isEmpty)
                 }
+                .padding(10)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
                 .padding(.horizontal)
+                .padding(.top)
                 
+                // Ara butonu
+                Button(action: {
+                    if !searchText.isEmpty {
+                        searchBooks()
+                    }
+                }) {
+                    Text("Ara")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .disabled(searchText.isEmpty)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                
+                // Sonuçlar veya durum göstergeleri
                 if isSearching {
-                    ProgressView()
+                    Spacer()
+                    ProgressView("Kitaplar aranıyor...")
+                        .progressViewStyle(CircularProgressViewStyle())
                         .padding()
+                    Spacer()
                 } else if let error = errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .padding()
+                    Spacer()
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 40))
+                            .foregroundColor(.red)
+                        Text(error)
+                            .font(.headline)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding()
+                    Spacer()
                 } else if searchResults.isEmpty && !searchText.isEmpty {
-                    Text("Sonuç bulunamadı")
-                        .foregroundColor(.secondary)
-                        .padding()
+                    Spacer()
+                    VStack(spacing: 20) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 40))
+                            .foregroundColor(.gray)
+                        Text("Sonuç bulunamadı")
+                            .font(.headline)
+                        Text("Farklı arama terimleri deneyebilirsiniz.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding()
+                    Spacer()
                 } else {
-                    List {
-                        ForEach(searchResults) { book in
-                            HStack {
-                                // Kitap bilgileri
-                                VStack(alignment: .leading) {
-                                    Text(book.title)
-                                        .font(.headline)
-                                    Text(book.authors.joined(separator: ", "))
-                                        .font(.subheadline)
-                                }
-                                
-                                Spacer()
-                                
-                                // İstek listesine ekle butonu
-                                if bookViewModel.isInWishlist(book) {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.green)
-                                } else {
-                                    Button(action: {
-                                        bookViewModel.addToWishlist(book)
-                                    }) {
-                                        Image(systemName: "plus")
+                    // Arama sonuçları
+                    ScrollView {
+                        LazyVStack(spacing: 16) {
+                            ForEach(searchResults) { book in
+                                HStack(spacing: 15) {
+                                    // Kitap kapağı
+                                    Group {
+                                        if let imageLinks = book.imageLinks, 
+                                           let thumbnail = imageLinks.thumbnail, 
+                                           let url = URL(string: thumbnail) {
+                                            AsyncImage(url: url) { phase in
+                                                if let image = phase.image {
+                                                    image
+                                                        .resizable()
+                                                        .aspectRatio(contentMode: .fill)
+                                                } else {
+                                                    bookCoverPlaceholder
+                                                }
+                                            }
+                                        } else {
+                                            bookCoverPlaceholder
+                                        }
+                                    }
+                                    .frame(width: 60, height: 90)
+                                    .cornerRadius(6)
+                                    
+                                    // Kitap bilgileri
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(book.title)
+                                            .font(.headline)
+                                            .lineLimit(2)
+                                        
+                                        Text(book.authorsText)
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(1)
+                                        
+                                        if let pageCount = book.pageCount {
+                                            Text("\(pageCount) sayfa")
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    // İstek listesine ekle butonu
+                                    if bookViewModel.isInWishlist(book) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                            .font(.system(size: 24))
+                                    } else {
+                                        Button(action: {
+                                            bookViewModel.addToWishlist(book)
+                                        }) {
+                                            Image(systemName: "plus.circle.fill")
+                                                .foregroundColor(.blue)
+                                                .font(.system(size: 24))
+                                        }
                                     }
                                 }
+                                .padding()
+                                .background(Color(.systemBackground))
+                                .cornerRadius(10)
+                                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
                             }
+                            .padding(.horizontal)
                         }
+                        .padding(.vertical)
                     }
                 }
-                
-                Spacer()
             }
             .navigationTitle("İstek Listesine Ekle")
             .navigationBarItems(trailing: Button("Kapat") {
@@ -282,21 +372,158 @@ struct AddToWishlistView: View {
         }
     }
     
+    private var bookCoverPlaceholder: some View {
+        Rectangle()
+            .fill(Color(.systemGray5))
+            .overlay(
+                Image(systemName: "book.closed")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundColor(.gray)
+                    .padding(12)
+            )
+    }
+    
     private func searchBooks() {
         isSearching = true
         errorMessage = nil
         
-        // Bu kısımda gerçek bir API çağrısı yapılacak
-        // Şimdilik örnek olarak simüle ediyoruz
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            // Örnek arama sonuçları
-            searchResults = Book.samples.filter { book in
-                book.title.localizedCaseInsensitiveContains(searchText) ||
-                book.authors.joined(separator: "").localizedCaseInsensitiveContains(searchText)
-            }
+        // Arama terimini temizle
+        let searchTerm = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        print("Aranıyor: \(searchTerm)")
+        
+        // Google Books API URL
+        guard let encodedTerm = searchTerm.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: "https://www.googleapis.com/books/v1/volumes?q=\(encodedTerm)&maxResults=20") else {
             isSearching = false
+            errorMessage = "Arama sırasında bir hata oluştu"
+            return
         }
+        
+        print("API çağrısı yapılıyor: \(url)")
+        
+        // API çağrısı
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            // Ana thread'e dön
+            DispatchQueue.main.async {
+                self.isSearching = false
+                
+                // Hata kontrolü
+                if let error = error {
+                    print("API hatası: \(error.localizedDescription)")
+                    self.errorMessage = "Bağlantı hatası: \(error.localizedDescription)"
+                    return
+                }
+                
+                // HTTP yanıt kontrolü
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    print("Geçersiz yanıt kodu")
+                    self.errorMessage = "Sunucu hatası"
+                    return
+                }
+                
+                // Veri kontrolü
+                guard let data = data else {
+                    print("Veri alınamadı")
+                    self.errorMessage = "Veri alınamadı"
+                    return
+                }
+                
+                // JSON ayrıştırma
+                do {
+                    let decoder = JSONDecoder()
+                    let result = try decoder.decode(WishlistBookResponse.self, from: data)
+                    
+                    print("Toplam sonuç: \(result.totalItems ?? 0)")
+                    
+                    // Sonuçları kitaplara dönüştür
+                    let books = result.items?.compactMap { item -> Book? in
+                        guard let volumeInfo = item.volumeInfo,
+                              let title = volumeInfo.title else {
+                            return nil
+                        }
+                        
+                        // Yazarları al veya varsayılan değer ver
+                        let authors = volumeInfo.authors ?? ["Yazar Belirtilmemiş"]
+                        
+                        // ISBN numaralarını al
+                        let isbn = volumeInfo.industryIdentifiers?.first(where: { $0.type == "ISBN_13" || $0.type == "ISBN_10" })?.identifier
+                        
+                        // Kapak görselini al
+                        var imageLinks: ImageLinks? = nil
+                        if let thumbnail = volumeInfo.imageLinks?.thumbnail {
+                            // HTTP bağlantılarını HTTPS'e çevir
+                            let secureUrl = thumbnail.replacingOccurrences(of: "http://", with: "https://")
+                            imageLinks = ImageLinks(small: nil, thumbnail: secureUrl, medium: nil, large: nil)
+                        }
+                        
+                        return Book(
+                            id: UUID(),
+                            isbn: isbn,
+                            title: title,
+                            authors: authors,
+                            description: volumeInfo.description,
+                            pageCount: volumeInfo.pageCount,
+                            categories: volumeInfo.categories,
+                            imageLinks: imageLinks,
+                            publishedDate: volumeInfo.publishedDate,
+                            publisher: volumeInfo.publisher,
+                            language: volumeInfo.language,
+                            readingStatus: .notStarted
+                        )
+                    } ?? []
+                    
+                    self.searchResults = books
+                    
+                    if books.isEmpty {
+                        print("Sonuç bulunamadı")
+                    } else {
+                        print("\(books.count) kitap bulundu")
+                        // İlk 3 kitabın başlığını yazdır
+                        for book in books.prefix(3) {
+                            print("- \(book.title) by \(book.authorsText)")
+                        }
+                    }
+                } catch {
+                    print("JSON ayrıştırma hatası: \(error)")
+                    self.errorMessage = "Arama sonuçları işlenemedi"
+                }
+            }
+        }.resume()
     }
+}
+
+// API yanıt modelleri
+struct WishlistBookResponse: Codable {
+    let items: [WishlistBookItem]?
+    let totalItems: Int?
+}
+
+struct WishlistBookItem: Codable {
+    let volumeInfo: WishlistVolumeInfo?
+}
+
+struct WishlistVolumeInfo: Codable {
+    let title: String?
+    let authors: [String]?
+    let description: String?
+    let pageCount: Int?
+    let categories: [String]?
+    let imageLinks: WishlistImageLinks?
+    let publishedDate: String?
+    let publisher: String?
+    let language: String?
+    let industryIdentifiers: [WishlistIdentifier]?
+}
+
+struct WishlistIdentifier: Codable {
+    let type: String?
+    let identifier: String?
+}
+
+struct WishlistImageLinks: Codable {
+    let smallThumbnail: String?
+    let thumbnail: String?
 }
 
 #Preview {
