@@ -1,690 +1,390 @@
 import SwiftUI
 
 struct HomeView: View {
-    @EnvironmentObject var bookViewModel: BookViewModel
-    @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @State private var searchText = ""
+    @State private var currentlyReadingBooks = [Book]()
+    @State private var recentlyFinishedBooks = [Book]()
+    @State private var partnerActivity: PartnerActivity? = nil
     
-    @State private var showingSearchSheet = false
-    @State private var selectedTab = 0
+    // Demo verisi (gerçek uygulamada burada Firebase'den veri çekilecek)
+    let demoCurrentlyReading = [
+        Book(id: "1", title: "Dune", author: "Frank Herbert", coverURL: nil, isbn: "9780441172719", pageCount: 412, currentPage: 200, dateAdded: Date(), dateFinished: nil, genre: "Bilim Kurgu", notes: nil, isFavorite: true, rating: nil),
+        Book(id: "2", title: "1984", author: "George Orwell", coverURL: nil, isbn: "9780451524935", pageCount: 328, currentPage: 100, dateAdded: Date(), dateFinished: nil, genre: "Distopya", notes: nil, isFavorite: false, rating: nil)
+    ]
+    
+    let demoRecentlyFinished = [
+        Book(id: "3", title: "Sapiens", author: "Yuval Noah Harari", coverURL: nil, isbn: "9780062316097", pageCount: 443, currentPage: 443, dateAdded: Date(), dateFinished: Date(), genre: "Tarih", notes: "Mükemmel bir kitap!", isFavorite: true, rating: 5),
+        Book(id: "4", title: "Suç ve Ceza", author: "Fyodor Dostoyevski", coverURL: nil, isbn: "9780143107637", pageCount: 671, currentPage: 671, dateAdded: Date(), dateFinished: Date(), genre: "Klasik", notes: nil, isFavorite: true, rating: 4)
+    ]
+    
+    // Demo partner aktivitesi
+    let demoPartnerActivity = PartnerActivity(
+        partnerName: "Ayşe",
+        bookTitle: "Hayvan Çiftliği",
+        activityType: .startedReading,
+        timestamp: Date().addingTimeInterval(-6000)
+    )
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                // Ana içerik
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        // Kullanıcı karşılama
-                        welcomeSection
-                        
-                        // Okuma durumu kartı
-                        readingStatusCard
-                        
-                        // Şu anda okunanlar
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // Hoş geldiniz mesajı
+                    welcomeSection
+                    
+                    // Eşinizin aktivitesi
+                    if let partnerActivity = partnerActivity {
+                        partnerActivitySection(activity: partnerActivity)
+                    }
+                    
+                    // Okumaya devam et
+                    if !currentlyReadingBooks.isEmpty {
                         currentlyReadingSection
-                        
-                        // Son eklenenler
-                        recentlyAddedSection
-                        
-                        // Partner aktivitesi
-                        if userViewModel.currentUser?.hasPartner == true {
-                            partnerActivitySection
-                        }
-                        
-                        // Önerilen kitaplar
-                        recommendedBooksSection
                     }
-                    .padding(.horizontal)
-                }
-                
-                // Alt menü
-                bottomTabBar
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Image("app_logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 28)
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        showingSearchSheet = true
-                    }) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.primary)
+                    
+                    // Son bitirilen kitaplar
+                    if !recentlyFinishedBooks.isEmpty {
+                        recentlyFinishedSection
                     }
+                    
+                    // Okuma istatistikleri
+                    readingStatsSection
+                    
+                    // Motivasyon rozetleri
+                    achievementsSection
                 }
+                .padding()
             }
-            .sheet(isPresented: $showingSearchSheet) {
-                SearchView(bookViewModel: bookViewModel)
-            }
+            .navigationTitle("Ana Sayfa")
+            .searchable(text: $searchText, prompt: "Kitap ara")
             .onAppear {
-                bookViewModel.fetchUserLibrary()
-                bookViewModel.fetchPartnerSharedBooks()
+                // Demo verilerini yükleme (gerçek uygulamada Firebase'den veri çekilecek)
+                loadDemoData()
             }
         }
     }
     
-    // MARK: - Özel bileşenler
+    // Demo verilerini yükleme
+    private func loadDemoData() {
+        currentlyReadingBooks = demoCurrentlyReading
+        recentlyFinishedBooks = demoRecentlyFinished
+        partnerActivity = demoPartnerActivity
+    }
     
-    // Karşılama bölümü
+    // MARK: - UI Bileşenleri
+    
     private var welcomeSection: some View {
         VStack(alignment: .leading) {
-            if let user = userViewModel.currentUser {
-                Text("Merhaba, \(user.username)")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                
-                if let goal = user.readingGoal, !goal.isCompleted {
-                    HStack {
-                        Text("Hedefinize \(goal.remainingDays) gün kaldı:")
-                            .font(.subheadline)
-                        
-                        Text("\(goal.progress)/\(goal.target) \(goal.type.description.lowercased())")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                    }
-                    
-                    ProgressBar(value: goal.progressPercentage/100)
-                        .frame(height: 8)
-                        .padding(.top, 4)
-                }
-            } else {
-                Text("Merhaba!")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-            }
+            Text("Merhaba, \(authViewModel.currentUser?.name ?? "Okuyucu")!")
+                .font(.title)
+                .fontWeight(.bold)
+            
+            Text("Bugün ne okuyorsun?")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
         }
-        .padding(.top)
+        .padding(.top, 5)
+        .padding(.bottom, 10)
     }
     
-    // Okuma durumu kartı
-    private var readingStatusCard: some View {
-        VStack(spacing: 16) {
+    private func partnerActivitySection(activity: PartnerActivity) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Eşinizin Son Aktivitesi")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            
             HStack {
+                Image(systemName: "person.fill")
+                    .font(.title2)
+                    .foregroundColor(.blue)
+                    .frame(width: 40, height: 40)
+                    .background(Color.blue.opacity(0.1))
+                    .clipShape(Circle())
+                
                 VStack(alignment: .leading) {
-                    Text("Okuma durumu")
-                        .font(.headline)
+                    Text(activity.partnerName)
+                        .fontWeight(.medium)
                     
-                    let stats = userViewModel.currentUser?.statistics ?? ReadingStatistics()
-                    Text("\(stats.readingStreak) günlük seri 🔥")
+                    Text("\(activity.activityDescription) • \(activity.formattedTime)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
-                
-                Spacer()
-                
-                NavigationLink(destination: StatisticsView(userViewModel: userViewModel)) {
-                    Text("Detaylar")
-                        .font(.subheadline)
-                        .foregroundColor(.blue)
+            }
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(10)
+        }
+    }
+    
+    private var currentlyReadingSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Okumaya Devam Et")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 15) {
+                    ForEach(currentlyReadingBooks) { book in
+                        NavigationLink(destination: BookDetailView(book: book)) {
+                            BookCardView(book: book)
+                                .frame(width: 160, height: 240)
+                        }
+                    }
                 }
             }
+        }
+    }
+    
+    private var recentlyFinishedSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Son Bitirdiğin Kitaplar")
+                .font(.headline)
+                .foregroundColor(.secondary)
             
-            HStack(spacing: 12) {
-                // Bugünün istatistiği
-                StatCard(
-                    title: "Bugün",
-                    value: "\(userViewModel.currentUser?.readingGoal?.currentDayMinutes ?? 0) dk",
-                    icon: "clock",
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 15) {
+                    ForEach(recentlyFinishedBooks) { book in
+                        NavigationLink(destination: BookDetailView(book: book)) {
+                            BookCardView(book: book)
+                                .frame(width: 160, height: 240)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private var readingStatsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Okuma İstatistikleri")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            
+            HStack {
+                StatCardView(
+                    iconName: "book.fill",
+                    value: "2",
+                    label: "Mevcut Kitaplar",
                     color: .blue
                 )
                 
-                // Toplam okunan
-                StatCard(
-                    title: "Toplam",
-                    value: "\(userViewModel.currentUser?.statistics.totalBooksRead ?? 0) kitap",
-                    icon: "book.closed",
+                StatCardView(
+                    iconName: "checkmark.circle.fill",
+                    value: "5",
+                    label: "Tamamlanan",
                     color: .green
                 )
                 
-                // Yıl içinde
-                StatCard(
-                    title: "Bu yıl",
-                    value: "\(userViewModel.currentUser?.statistics.booksReadThisYear ?? 0) kitap",
-                    icon: "calendar",
+                StatCardView(
+                    iconName: "flame.fill",
+                    value: "3",
+                    label: "Günlük Seri",
                     color: .orange
                 )
             }
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(12)
     }
     
-    // Şu anda okunanlar
-    private var currentlyReadingSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Şu Anda Okuduklarım", showAll: true) {
-                NavigationLink(destination: BookListView(
-                    books: bookViewModel.currentlyReadingBooks,
-                    title: "Şu Anda Okuduklarım",
-                    bookViewModel: bookViewModel
-                )) {
-                    EmptyView()
-                }
-            }
-            
-            if bookViewModel.currentlyReadingBooks.isEmpty {
-                EmptyStateView(
-                    message: "Şu anda okuduğunuz kitap yok",
-                    buttonText: "Kitap Ekle",
-                    icon: "book.fill"
-                ) {
-                    showingSearchSheet = true
-                }
-                .frame(height: 180)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 16) {
-                        ForEach(bookViewModel.currentlyReadingBooks) { book in
-                            NavigationLink(destination: BookDetailView(book: book, bookViewModel: bookViewModel)) {
-                                ReadingBookCard(book: book)
-                                    .frame(width: 280, height: 160)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 4)
-                }
-            }
-        }
-    }
-    
-    // Son eklenen kitaplar
-    private var recentlyAddedSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Son Eklenenler", showAll: true) {
-                NavigationLink(destination: BookListView(
-                    books: bookViewModel.recentlyAddedBooks,
-                    title: "Son Eklenenler",
-                    bookViewModel: bookViewModel
-                )) {
-                    EmptyView()
-                }
-            }
-            
-            if bookViewModel.recentlyAddedBooks.isEmpty {
-                EmptyStateView(
-                    message: "Henüz kitap eklemediniz",
-                    buttonText: "Kitap Ekle", 
-                    icon: "plus.circle"
-                ) {
-                    showingSearchSheet = true
-                }
-                .frame(height: 160)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 16) {
-                        ForEach(bookViewModel.recentlyAddedBooks) { book in
-                            NavigationLink(destination: BookDetailView(book: book, bookViewModel: bookViewModel)) {
-                                BookCoverView(book: book)
-                                    .frame(width: 120, height: 160)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 4)
-                }
-            }
-        }
-    }
-    
-    // Partner aktiviteleri
-    private var partnerActivitySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Partner Aktivitesi", showAll: true) {
-                NavigationLink(destination: PartnerActivityView(userViewModel: userViewModel)) {
-                    EmptyView()
-                }
-            }
-            
-            if userViewModel.partnerActivities.isEmpty {
-                EmptyStateView(
-                    message: "Henüz partner aktivitesi yok",
-                    icon: "person.2"
-                )
-                .frame(height: 120)
-            } else {
-                VStack(spacing: 12) {
-                    ForEach(userViewModel.partnerActivities.prefix(2)) { activity in
-                        ActivityRow(activity: activity)
-                    }
-                }
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(12)
-            }
-        }
-    }
-    
-    // Önerilen kitaplar
-    private var recommendedBooksSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Sizin İçin Önerilenler", showAll: false)
-            
-            if bookViewModel.recommendedBooks.isEmpty {
-                EmptyStateView(
-                    message: "Tüm öneri listenizi okudunuz",
-                    icon: "star.fill"
-                )
-                .frame(height: 160)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 16) {
-                        ForEach(bookViewModel.recommendedBooks) { book in
-                            NavigationLink(destination: BookDetailView(book: book, bookViewModel: bookViewModel)) {
-                                VStack(alignment: .leading) {
-                                    BookCoverView(book: book)
-                                        .frame(width: 120, height: 160)
-                                    
-                                    if let recommendedBy = book.recommendedBy {
-                                        Text("\(recommendedBy) önerdi")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 4)
-                }
-            }
-        }
-    }
-    
-    // Alt gezinme çubuğu
-    private var bottomTabBar: some View {
-        HStack {
-            TabBarButton(
-                title: "Ana Sayfa",
-                icon: "house",
-                isSelected: selectedTab == 0
-            ) {
-                selectedTab = 0
-            }
-            
-            TabBarButton(
-                title: "Kitaplık",
-                icon: "books.vertical",
-                isSelected: selectedTab == 1
-            ) {
-                selectedTab = 1
-            }
-            
-            TabBarButton(
-                title: "Koleksiyonlar",
-                icon: "rectangle.stack",
-                isSelected: selectedTab == 2
-            ) {
-                selectedTab = 2
-            }
-            
-            TabBarButton(
-                title: "Profil",
-                icon: "person",
-                isSelected: selectedTab == 3
-            ) {
-                selectedTab = 3
-            }
-        }
-        .padding(.vertical, 8)
-        .background(Color(.systemBackground))
-        .overlay(
-            Rectangle()
-                .frame(height: 1)
-                .foregroundColor(Color(.systemGray5)),
-            alignment: .top
-        )
-    }
-}
-
-// MARK: - Yardımcı görünümler
-
-struct SectionHeader: View {
-    let title: String
-    let showAll: Bool
-    var action: (() -> Void)? = nil
-    
-    var body: some View {
-        HStack {
-            Text(title)
+    private var achievementsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Son Kazandığın Rozetler")
                 .font(.headline)
+                .foregroundColor(.secondary)
             
-            Spacer()
-            
-            if showAll {
-                Button(action: {
-                    action?()
-                }) {
-                    Text("Tümünü Gör")
-                        .font(.subheadline)
-                        .foregroundColor(.blue)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 15) {
+                    AchievementBadgeView(
+                        iconName: "book.fill",
+                        title: "Kitap Kurdu",
+                        description: "5 kitap okuduğun için"
+                    )
+                    
+                    AchievementBadgeView(
+                        iconName: "flame.fill",
+                        title: "Seri Okuyucu",
+                        description: "3 günlük okuma serisi"
+                    )
+                    
+                    AchievementBadgeView(
+                        iconName: "star.fill",
+                        title: "İlk Derecelendirme",
+                        description: "İlk kitap değerlendirmen"
+                    )
                 }
             }
         }
     }
 }
 
-struct StatCard: View {
-    let title: String
+// MARK: - Yardımcı Yapılar ve Görünümler
+
+struct StatCardView: View {
+    let iconName: String
     let value: String
-    let icon: String
+    let label: String
     let color: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+        VStack {
+            Image(systemName: iconName)
+                .font(.title)
+                .foregroundColor(color)
             
             Text(value)
-                .font(.title3)
+                .font(.title2)
                 .fontWeight(.bold)
+            
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
         .padding()
         .background(color.opacity(0.1))
-        .cornerRadius(8)
+        .cornerRadius(10)
     }
 }
 
-struct ReadingBookCard: View {
+struct AchievementBadgeView: View {
+    let iconName: String
+    let title: String
+    let description: String
+    
+    var body: some View {
+        VStack {
+            Image(systemName: iconName)
+                .font(.largeTitle)
+                .foregroundColor(.yellow)
+                .padding()
+                .background(Color.yellow.opacity(0.2))
+                .clipShape(Circle())
+            
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.medium)
+            
+            Text(description)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(width: 120, height: 160)
+        .padding()
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(10)
+    }
+}
+
+struct BookCardView: View {
     let book: Book
     
     var body: some View {
-        HStack(spacing: 16) {
-            BookCoverView(book: book)
-                .frame(width: 80, height: 120)
+        VStack(alignment: .leading) {
+            // Kitap kapağı
+            ZStack {
+                if let coverURL = book.coverURL {
+                    AsyncImage(url: coverURL) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        ProgressView()
+                    }
+                    .frame(width: 120, height: 160)
+                } else {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 120, height: 160)
+                        .overlay(
+                            Text(book.title)
+                                .font(.caption)
+                                .multilineTextAlignment(.center)
+                                .padding(5)
+                        )
+                }
+            }
+            .cornerRadius(8)
+            .shadow(radius: 2)
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(book.title)
-                    .font(.headline)
-                    .lineLimit(2)
+                    .font(.callout)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
                 
-                Text(book.formattedAuthors)
-                    .font(.subheadline)
+                Text(book.author)
+                    .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
                 
-                Spacer()
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text("Sayfa \(book.currentPage)/\(book.pageCount ?? 0)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        Spacer()
-                        
-                        Text("\(Int(book.readingProgressPercentage))%")
-                            .font(.caption)
-                            .foregroundColor(.blue)
-                    }
+                // İlerleme çubuğu
+                if !book.isCompleted {
+                    ProgressView(value: book.readingProgress, total: 100)
+                        .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                        .frame(height: 5)
                     
-                    ProgressBar(value: book.readingProgressPercentage/100)
-                        .frame(height: 8)
+                    Text("\(Int(book.readingProgress))%")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
                 }
             }
+            .padding(.top, 5)
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
+        .padding(10)
+        .background(Color.white)
         .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
     }
 }
 
-struct BookCoverView: View {
+// Partner aktivitesini temsil eden sınıf
+struct PartnerActivity {
+    let partnerName: String
+    let bookTitle: String
+    let activityType: ActivityType
+    let timestamp: Date
+    
+    enum ActivityType {
+        case startedReading
+        case finishedReading
+        case addedNote
+        case setGoal
+    }
+    
+    var activityDescription: String {
+        switch activityType {
+        case .startedReading:
+            return "\"\(bookTitle)\" kitabını okumaya başladı"
+        case .finishedReading:
+            return "\"\(bookTitle)\" kitabını tamamladı"
+        case .addedNote:
+            return "\"\(bookTitle)\" kitabına not ekledi"
+        case .setGoal:
+            return "Yeni bir okuma hedefi belirledi"
+        }
+    }
+    
+    var formattedTime: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: timestamp, relativeTo: Date())
+    }
+}
+
+// Detay sayfası için mockup görünüm
+struct BookDetailView: View {
     let book: Book
     
     var body: some View {
-        Group {
-            if let url = book.coverImageUrl {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        ProgressView()
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    case .failure:
-                        fallbackCover
-                    @unknown default:
-                        fallbackCover
-                    }
-                }
-            } else {
-                fallbackCover
-            }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .shadow(radius: 2)
-    }
-    
-    var fallbackCover: some View {
-        ZStack {
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: generateGradientColors()),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-            
-            VStack {
-                Text(book.title)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 8)
-                    .foregroundColor(.white)
-                
-                if let authors = book.authors, !authors.isEmpty {
-                    Text(authors.first ?? "")
-                        .font(.caption2)
-                        .foregroundColor(.white.opacity(0.8))
-                }
-            }
-            .padding(8)
-        }
-    }
-    
-    // Her kitap için farklı bir arka plan gradyanı oluştur
-    private func generateGradientColors() -> [Color] {
-        let colors: [[Color]] = [
-            [.blue, .purple],
-            [.green, .blue],
-            [.orange, .red],
-            [.purple, .pink],
-            [.indigo, .blue]
-        ]
-        
-        // Kitap ID'sine göre rastgele ama tutarlı bir renk seç
-        let hashValue = abs(book.id.hashValue % colors.count)
-        return colors[hashValue]
+        Text("Kitap Detayı: \(book.title)")
+            .padding()
     }
 }
 
-struct ActivityRow: View {
-    let activity: Activity
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            // Profil resmi
-            UserAvatarView(url: activity.userProfileImageUrl, size: 40)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                // Aktivite açıklaması
-                Text(activity.activityDescription)
-                    .font(.subheadline)
-                
-                // Tarih
-                Text(activity.formattedTimestamp)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            // Kitap kapağı (varsa)
-            if activity.type.involvesBook, let coverUrl = activity.bookCoverImageUrl {
-                AsyncImage(url: coverUrl) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 40, height: 60)
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                    } else {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.2))
-                            .frame(width: 40, height: 60)
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                    }
-                }
-            }
-        }
-    }
-}
-
-// Aktivite tipinin kitapla ilgili olup olmadığını kontrol et
-extension ActivityType {
-    var involvesBook: Bool {
-        switch self {
-        case .startedReading, .finishedReading, .updatedProgress, 
-             .addedBook, .ratedBook, .addedNote:
-            return true
-        case .achievedGoal, .joinedApp, .connectedWithPartner:
-            return false
-        }
-    }
-}
-
-struct UserAvatarView: View {
-    let url: URL?
-    let size: CGFloat
-    
-    var body: some View {
-        Group {
-            if let url = url {
-                AsyncImage(url: url) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    } else {
-                        defaultAvatar
-                    }
-                }
-            } else {
-                defaultAvatar
-            }
-        }
-        .frame(width: size, height: size)
-        .clipShape(Circle())
-    }
-    
-    var defaultAvatar: some View {
-        ZStack {
-            Circle()
-                .fill(Color.blue.opacity(0.2))
-            
-            Image(systemName: "person.fill")
-                .foregroundColor(.blue)
-                .font(.system(size: size * 0.5))
-        }
-    }
-}
-
-struct ProgressBar: View {
-    let value: Double // 0 ve 1 arasında bir değer
-    var color: Color = .blue
-    
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .leading) {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.2))
-                
-                Rectangle()
-                    .fill(color)
-                    .frame(width: min(CGFloat(value) * geometry.size.width, geometry.size.width))
-            }
-            .cornerRadius(10)
-        }
-    }
-}
-
-struct EmptyStateView: View {
-    let message: String
-    var buttonText: String? = nil
-    let icon: String
-    var action: (() -> Void)? = nil
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.largeTitle)
-                .foregroundColor(.gray)
-            
-            Text(message)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-            
-            if let buttonText = buttonText, let action = action {
-                Button(action: action) {
-                    Text(buttonText)
-                        .font(.subheadline)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .padding(.top, 8)
-            }
-        }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(12)
-    }
-}
-
-struct TabBarButton: View {
-    let title: String
-    let icon: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 20))
-                
-                Text(title)
-                    .font(.caption)
-            }
-            .foregroundColor(isSelected ? .blue : .gray)
-            .frame(maxWidth: .infinity)
-        }
-    }
-}
-
-// MARK: - Önizleme
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        let bookViewModel = BookViewModel()
-        let userViewModel = UserViewModel()
-        
-        HomeView(bookViewModel: bookViewModel, userViewModel: userViewModel)
+        HomeView()
+            .environmentObject(AuthViewModel())
     }
 } 

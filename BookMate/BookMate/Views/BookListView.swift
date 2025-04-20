@@ -68,9 +68,7 @@ struct BookListView: View {
                 // Kitap listesi
                 List {
                     ForEach(filteredBooks) { book in
-                        NavigationLink {
-                            BookDetailView(book: book)
-                        } label: {
+                        NavigationLink(destination: NewBookDetailView(book: book)) {
                             BookRow(book: book)
                         }
                         .swipeActions(edge: .trailing) {

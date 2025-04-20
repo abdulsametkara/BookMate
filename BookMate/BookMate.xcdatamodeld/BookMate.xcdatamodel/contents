@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22E261" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="AchievementEntity" representedClassName="AchievementEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="dateEarned" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="descriptionText" attributeType="String"/>
+        <attribute name="iconName" attributeType="String"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isShared" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserEntity" inverseName="achievements" inverseEntity="UserEntity"/>
+    </entity>
+    <entity name="BookEntity" representedClassName="BookEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="author" attributeType="String"/>
+        <attribute name="coverURL" optional="YES" attributeType="URI"/>
+        <attribute name="currentPage" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="dateAdded" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dateFinished" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="genre" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isFavorite" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isbn" optional="YES" attributeType="String"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="pageCount" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="rating" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserEntity" inverseName="books" inverseEntity="UserEntity"/>
+    </entity>
+    <entity name="ReadingStatsEntity" representedClassName="ReadingStatsEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="currentStreak" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="lastReadDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="longestStreak" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="readingGoal" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="totalBooksRead" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="totalPagesRead" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="weeklyReadingTime" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserEntity" inverseName="readingStats" inverseEntity="UserEntity"/>
+    </entity>
+    <entity name="UserEntity" representedClassName="UserEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="dateJoined" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="email" attributeType="String"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="partnerId" optional="YES" attributeType="String"/>
+        <attribute name="partnerName" optional="YES" attributeType="String"/>
+        <attribute name="profileImageURL" optional="YES" attributeType="URI"/>
+        <relationship name="achievements" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="AchievementEntity" inverseName="user" inverseEntity="AchievementEntity"/>
+        <relationship name="books" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BookEntity" inverseName="user" inverseEntity="BookEntity"/>
+        <relationship name="preferences" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="UserPreferencesEntity" inverseName="user" inverseEntity="UserPreferencesEntity"/>
+        <relationship name="readingStats" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ReadingStatsEntity" inverseName="user" inverseEntity="ReadingStatsEntity"/>
+    </entity>
+    <entity name="UserPreferencesEntity" representedClassName="UserPreferencesEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="customThemeColor" optional="YES" attributeType="String"/>
+        <attribute name="dailyReminderTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="isDarkModeEnabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="notificationsEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="shareReadingStatus" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserEntity" inverseName="preferences" inverseEntity="UserEntity"/>
+    </entity>
+</model> 

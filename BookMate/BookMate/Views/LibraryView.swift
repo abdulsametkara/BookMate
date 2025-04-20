@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LibraryView: View {
     @EnvironmentObject var bookViewModel: BookViewModel
+    @State private var showBookshelfView = false
     
     var body: some View {
         NavigationView {
@@ -36,6 +37,28 @@ struct LibraryView: View {
                 .padding()
             }
             .navigationBarTitle("Kütüphane", displayMode: .inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showBookshelfView = true
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "cube")
+                            Text("3D")
+                                .font(.caption)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.blue.opacity(0.1))
+                        .foregroundColor(.blue)
+                        .cornerRadius(8)
+                    }
+                }
+            }
+            .sheet(isPresented: $showBookshelfView) {
+                BookshelfView()
+                    .environmentObject(bookViewModel)
+            }
         }
     }
 }
@@ -45,7 +68,7 @@ struct LibraryBookItem: View {
     @EnvironmentObject var bookViewModel: BookViewModel
     
     var body: some View {
-        NavigationLink(destination: BookDetailView(book: book)) {
+        NavigationLink(destination: NewBookDetailView(book: book)) {
             HStack(spacing: 12) {
                 // Kitap kapağı
                 bookCoverView(for: book)
@@ -190,7 +213,7 @@ struct CompletedBooksView: View {
     var body: some View {
         List {
             ForEach(bookViewModel.completedBooks) { book in
-                NavigationLink(destination: BookDetailView(book: book)) {
+                NavigationLink(destination: NewBookDetailView(book: book)) {
                     HStack(spacing: 12) {
                         // Kitap kapağı
                         if let url = book.thumbnailURL {

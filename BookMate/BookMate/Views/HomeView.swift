@@ -108,7 +108,7 @@ struct HomeView: View {
             
             // Okunan kitap varsa, kitap kartını göster
             if let currentBook = bookViewModel.currentlyReadingBook {
-                NavigationLink(destination: BookDetailView(book: currentBook)) {
+                NavigationLink(destination: NewBookDetailView(book: currentBook)) {
                     currentlyReadingCard(currentBook)
                         .padding(.horizontal, 20)
                 }
@@ -204,7 +204,7 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(bookViewModel.recentlyAddedBooks) { book in
-                        NavigationLink(destination: BookDetailView(book: book)) {
+                        NavigationLink(destination: NewBookDetailView(book: book)) {
                             recentBookCard(book)
                         }
                         .buttonStyle(PlainButtonStyle())

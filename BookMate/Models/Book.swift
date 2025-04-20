@@ -1,4 +1,6 @@
 import Foundation
+import Firebase
+import FirebaseFirestoreSwift
 
 // Reading status enumeration
 enum ReadingStatus: String, Codable, CaseIterable {
@@ -74,24 +76,37 @@ struct ReadingNote: Identifiable, Codable, Equatable {
 
 // Main Book model
 struct Book: Identifiable, Codable, Equatable {
-    let id: String
-    let isbn: String?
+    @DocumentID var id: String?
     var title: String
-    var subtitle: String?
-    var authors: [String]?
-    var publisher: String?
-    var publishedDate: Date?
-    var description: String?
-    var pageCount: Int?
-    var categories: [String]?
-    var imageLinks: BookImageLinks?
-    var language: String?
+    var author: String
+    var coverURL: URL?
+    var isbn: String?
+    var pageCount: Int
+    var currentPage: Int
+    var dateAdded: Date
+    var dateUpdated: Date?
+    var genre: String?
+    var notes: String?
+    var rating: Int?
+    var completionDate: Date?
+    var isFinished: Bool {
+        return currentPage >= pageCount && pageCount > 0
+    }
+    var readingProgress: Double {
+        guard pageCount > 0 else { return 0 }
+        return Double(currentPage) / Double(pageCount)
+    }
+    
+    // Eşler arası paylaşım için
+    var sharedWithPartner: Bool = false
+    var partnerProgress: Int?
+    
+    // Kullanıcıya özgü alanlar
+    var userId: String?
     
     // User-specific properties
-    var dateAdded: Date
     var startedReading: Date?
     var finishedReading: Date?
-    var currentPage: Int
     var readingStatus: ReadingStatus
     var isFavorite: Bool
     var userRating: Double?
@@ -117,19 +132,18 @@ struct Book: Identifiable, Codable, Equatable {
     init(id: String = UUID().uuidString,
          isbn: String? = nil,
          title: String,
-         subtitle: String? = nil,
-         authors: [String]? = nil,
-         publisher: String? = nil,
-         publishedDate: Date? = nil,
-         description: String? = nil,
-         pageCount: Int? = nil,
-         categories: [String]? = nil,
-         imageLinks: BookImageLinks? = nil,
-         language: String? = nil,
+         author: String,
+         coverURL: URL? = nil,
+         pageCount: Int,
+         currentPage: Int = 0,
          dateAdded: Date = Date(),
+         dateUpdated: Date? = nil,
+         genre: String? = nil,
+         notes: String? = nil,
+         rating: Int? = nil,
+         completionDate: Date? = nil,
          startedReading: Date? = nil,
          finishedReading: Date? = nil,
-         currentPage: Int = 0,
          readingStatus: ReadingStatus = .notStarted,
          isFavorite: Bool = false,
          userRating: Double? = nil,
@@ -142,25 +156,26 @@ struct Book: Identifiable, Codable, Equatable {
          recommendedBy: String? = nil,
          recommendedDate: Date? = nil,
          sharedCollectionIds: [String]? = nil,
-         partnerNotes: String? = nil) {
+         partnerNotes: String? = nil,
+         sharedWithPartner: Bool = false,
+         partnerProgress: Int? = nil,
+         userId: String? = nil) {
         
         self.id = id
         self.isbn = isbn
         self.title = title
-        self.subtitle = subtitle
-        self.authors = authors
-        self.publisher = publisher
-        self.publishedDate = publishedDate
-        self.description = description
+        self.author = author
+        self.coverURL = coverURL
         self.pageCount = pageCount
-        self.categories = categories
-        self.imageLinks = imageLinks
-        self.language = language
-        
+        self.currentPage = currentPage
         self.dateAdded = dateAdded
+        self.dateUpdated = dateUpdated
+        self.genre = genre
+        self.notes = notes
+        self.rating = rating
+        self.completionDate = completionDate
         self.startedReading = startedReading
         self.finishedReading = finishedReading
-        self.currentPage = currentPage
         self.readingStatus = readingStatus
         self.isFavorite = isFavorite
         self.userRating = userRating
@@ -169,42 +184,31 @@ struct Book: Identifiable, Codable, Equatable {
         self.bookmarks = bookmarks
         self.readingTime = readingTime
         self.lastReadingSession = lastReadingSession
-        
         self.readingSessions = readingSessions
-        
         self.recommendedBy = recommendedBy
         self.recommendedDate = recommendedDate
         self.sharedCollectionIds = sharedCollectionIds
         self.partnerNotes = partnerNotes
+        self.sharedWithPartner = sharedWithPartner
+        self.partnerProgress = partnerProgress
+        self.userId = userId
     }
     
     // Derived properties
     var formattedAuthors: String {
-        return authors?.joined(separator: ", ") ?? "Unknown Author"
+        return author
     }
     
     var primaryCategory: String {
-        return categories?.first ?? "Uncategorized"
-    }
-    
-    var readingProgressPercentage: Double {
-        guard let pageCount = pageCount, pageCount > 0 else {
-            return 0.0
-        }
-        
-        return Double(currentPage) / Double(pageCount) * 100.0
+        return genre ?? "Uncategorized"
     }
     
     var isCurrentlyReading: Bool {
         return readingStatus == .inProgress
     }
     
-    var coverImageUrl: URL? {
-        return imageLinks?.thumbnail ?? imageLinks?.smallThumbnail
-    }
-    
     var hasCoverImage: Bool {
-        return coverImageUrl != nil
+        return coverURL != nil
     }
     
     var hasUserContent: Bool {
@@ -429,15 +433,56 @@ struct Book: Identifiable, Codable, Equatable {
             id: id,
             isbn: isbn,
             title: title,
-            subtitle: subtitle,
-            authors: authors,
-            publisher: publisher,
-            publishedDate: publishedDate,
-            description: description,
-            pageCount: pageCount,
-            categories: categories,
-            imageLinks: imageLinks,
-            language: language
+            author: authors?.first ?? "Unknown Author",
+            coverURL: imageLinks?.thumbnail ?? imageLinks?.smallThumbnail,
+            pageCount: pageCount ?? 0,
+            currentPage: 0,
+            dateAdded: Date(),
+            dateUpdated: Date(),
+            genre: categories?.first,
+            notes: description,
+            rating: nil,
+            completionDate: nil,
+            startedReading: nil,
+            finishedReading: nil,
+            readingStatus: .notStarted,
+            isFavorite: false,
+            userRating: nil,
+            userNotes: nil,
+            highlightedPassages: nil,
+            bookmarks: nil,
+            readingTime: nil,
+            lastReadingSession: nil,
+            readingSessions: nil,
+            recommendedBy: nil,
+            recommendedDate: nil,
+            sharedCollectionIds: nil,
+            partnerNotes: nil,
+            sharedWithPartner: false,
+            partnerProgress: nil,
+            userId: nil
+        )
+    }
+    
+    // Firebase'den döküman olarak dönüştürme
+    static func fromDocument(_ document: QueryDocumentSnapshot) -> Book? {
+        try? document.data(as: Book.self)
+    }
+    
+    // Test için örnek kitap
+    static var sample: Book {
+        Book(
+            id: UUID().uuidString,
+            title: "1984",
+            author: "George Orwell",
+            coverURL: URL(string: "https://example.com/covers/1984.jpg"),
+            isbn: "9780451524935",
+            pageCount: 328,
+            currentPage: 125,
+            dateAdded: Date(),
+            dateUpdated: Date(),
+            genre: "Distopya",
+            notes: "Etkileyici bir distopik roman."
         )
     }
 }
@@ -591,14 +636,13 @@ extension Book {
         [
             Book(
                 title: "1984",
-                authors: ["George Orwell"],
+                author: "George Orwell",
                 description: "Büyük Birader sizi izliyor. Totaliter bir distopya romanı.",
-                coverImageUrl: nil,
+                coverURL: nil,
                 publisher: nil,
                 publishedDate: nil,
                 pageCount: 328,
-                isbn10: nil,
-                isbn13: nil,
+                isbn: nil,
                 categories: ["Distopya"],
                 language: nil,
                 currentPage: 0,
@@ -611,14 +655,13 @@ extension Book {
             ),
             Book(
                 title: "Dönüşüm",
-                authors: ["Franz Kafka"],
+                author: "Franz Kafka",
                 description: "Gregor Samsa bir sabah kendini dev bir böceğe dönüşmüş olarak bulur.",
-                coverImageUrl: nil,
+                coverURL: nil,
                 publisher: nil,
                 publishedDate: nil,
                 pageCount: 160,
-                isbn10: nil,
-                isbn13: nil,
+                isbn: nil,
                 categories: ["Roman"],
                 language: nil,
                 currentPage: 0,
@@ -631,14 +674,13 @@ extension Book {
             ),
             Book(
                 title: "Suç ve Ceza",
-                authors: ["Fyodor Dostoyevski"],
+                author: "Fyodor Dostoyevski",
                 description: "Raskolnikov'un işlediği cinayet sonrası yaşadığı vicdani sorgulamaları anlatır.",
-                coverImageUrl: nil,
+                coverURL: nil,
                 publisher: nil,
                 publishedDate: nil,
                 pageCount: 671,
-                isbn10: nil,
-                isbn13: nil,
+                isbn: nil,
                 categories: ["Klasik"],
                 language: nil,
                 currentPage: 0,
@@ -651,14 +693,13 @@ extension Book {
             ),
             Book(
                 title: "Simyacı",
-                authors: ["Paulo Coelho"],
+                author: "Paulo Coelho",
                 description: "Santiago'nun kişisel efsanesini keşfetmek için çıktığı yolculuğu anlatır.",
-                coverImageUrl: nil,
+                coverURL: nil,
                 publisher: nil,
                 publishedDate: nil,
                 pageCount: 184,
-                isbn10: nil,
-                isbn13: nil,
+                isbn: nil,
                 categories: ["Roman"],
                 language: nil,
                 currentPage: 0,
@@ -679,23 +720,18 @@ enum BookStatus: String, Codable {
     case finished = "Finished"
 }
 
-struct Book: Identifiable, Codable {
-    var id: String
-    var title: String
-    var author: String
-    var coverURL: String
-    var description: String
-    var pageCount: Int
-    var currentPage: Int
-    var status: BookStatus
-    var dateAdded: Date
-    var lastRead: Date
-    
-    var progressPercentage: Double {
-        return Double(currentPage) / Double(max(1, pageCount)) * 100
-    }
-    
-    var isCompleted: Bool {
-        return status == .finished || currentPage >= pageCount
-    }
+// Kitap gruplandırma ve sınıflandırma için
+enum BookSortOrder {
+    case title, author, dateAdded, dateFinished, readingProgress
+}
+
+enum BookCategory: String, CaseIterable {
+    case fiction = "Kurgu"
+    case nonFiction = "Kurgu Dışı"
+    case scienceFiction = "Bilim Kurgu"
+    case fantasy = "Fantastik"
+    case biography = "Biyografi"
+    case history = "Tarih"
+    case selfHelp = "Kişisel Gelişim"
+    case other = "Diğer"
 } 

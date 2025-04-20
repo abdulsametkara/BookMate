@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct BookDetailView: View {
+struct NewBookDetailView: View {
     let book: Book
     @State private var isEditingNotes = false
     @State private var userNotes: String
@@ -326,7 +326,7 @@ struct BookDetailView: View {
 
 #Preview {
     NavigationView {
-        BookDetailView(book: Book(
+        NewBookDetailView(book: Book(
             id: UUID(),
             isbn: "9780553380958",
             title: "Fareler ve İnsanlar",

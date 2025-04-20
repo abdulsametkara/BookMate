@@ -23,9 +23,10 @@ struct MainTabView: View {
                 HomeView(bookViewModel: bookViewModel, userViewModel: userViewModel)
                     .environmentObject(collectionViewModel)
             case 1:
-                LibraryView()
+                MyLibraryView()
                     .environmentObject(bookViewModel)
                     .environmentObject(collectionViewModel)
+                    .environmentObject(userViewModel)
             case 2:
                 CollectionsView()
                     .environmentObject(collectionViewModel)

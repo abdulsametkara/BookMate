@@ -1,10 +1,36 @@
 import Foundation
 import Combine
+import Network
 
 class BookSearchService {
     private let baseURL = "https://www.googleapis.com/books/v1/volumes"
+    private let networkMonitor = NWPathMonitor()
+    private var isNetworkAvailable = true
+    private let maxRetryAttempts = 3
+    
+    init() {
+        // Set up network monitoring
+        startNetworkMonitoring()
+    }
+    
+    private func startNetworkMonitoring() {
+        networkMonitor.pathUpdateHandler = { [weak self] path in
+            self?.isNetworkAvailable = path.status == .satisfied
+            print("BookSearchService: Network status changed - Available: \(path.status == .satisfied)")
+        }
+        let queue = DispatchQueue(label: "NetworkMonitor")
+        networkMonitor.start(queue: queue)
+    }
     
     func searchBooks(query: String) -> AnyPublisher<[BookSearchResult], Error> {
+        // Check network availability first
+        guard isNetworkAvailable else {
+            print("BookSearchService: Network connection unavailable")
+            return Fail(error: NSError(domain: "BookSearchService", code: -1009, 
+                                      userInfo: [NSLocalizedDescriptionKey: "Bağlantı hatası: The network connection was lost."]))
+                .eraseToAnyPublisher()
+        }
+        
         // URL'i oluştur, URL encoding işlemleri
         guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: "\(baseURL)?q=\(encodedQuery)&maxResults=20") else {
@@ -14,8 +40,20 @@ class BookSearchService {
         
         print("BookSearchService: API isteği yapılıyor: \(url.absoluteString)")
         
-        // API isteği
-        return URLSession.shared.dataTaskPublisher(for: url)
+        // Configure URL session with timeout settings
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15 // 15 seconds timeout
+        config.waitsForConnectivity = true
+        let session = URLSession(configuration: config)
+        
+        // API isteği with retry logic
+        return requestWithRetry(session: session, url: url, retryCount: 0)
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+    
+    private func requestWithRetry(session: URLSession, url: URL, retryCount: Int) -> AnyPublisher<[BookSearchResult], Error> {
+        return session.dataTaskPublisher(for: url)
             .tryMap { data, response in
                 guard let httpResponse = response as? HTTPURLResponse else {
                     print("BookSearchService: Geçersiz HTTP yanıtı")
@@ -61,8 +99,38 @@ class BookSearchService {
                 print("BookSearchService: Toplam \(results.count) kitap bulundu")
                 return results
             }
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+            .catch { [weak self] error -> AnyPublisher<[BookSearchResult], Error> in
+                guard let self = self, retryCount < self.maxRetryAttempts else {
+                    // Max retries reached, return the error
+                    if error is URLError, (error as? URLError)?.code == .notConnectedToInternet {
+                        return Fail(error: NSError(domain: "BookSearchService", code: -1009, 
+                                                  userInfo: [NSLocalizedDescriptionKey: "Bağlantı hatası: The network connection was lost."]))
+                                .eraseToAnyPublisher()
+                    }
+                    return Fail(error: error).eraseToAnyPublisher()
+                }
+                
+                // Only retry for network-related errors
+                if let urlError = error as? URLError, 
+                   [.notConnectedToInternet, .networkConnectionLost, .timedOut].contains(urlError.code) {
+                    print("BookSearchService: Network error, retrying (\(retryCount + 1)/\(self.maxRetryAttempts))")
+                    
+                    // Add delay before retry (exponential backoff)
+                    let delay = TimeInterval(pow(2.0, Double(retryCount))) * 0.5
+                    return Just(())
+                        .delay(for: .seconds(delay), scheduler: DispatchQueue.global())
+                        .flatMap { [weak self] _ -> AnyPublisher<[BookSearchResult], Error> in
+                            guard let self = self else {
+                                return Fail(error: URLError(.unknown)).eraseToAnyPublisher()
+                            }
+                            return self.requestWithRetry(session: session, url: url, retryCount: retryCount + 1)
+                        }
+                        .eraseToAnyPublisher()
+                }
+                
+                // For other errors, don't retry
+                return Fail(error: error).eraseToAnyPublisher()
+            }
     }
     
     // ISBN ile kitap arama
@@ -75,6 +143,10 @@ class BookSearchService {
                 return result
             }
             .eraseToAnyPublisher()
+    }
+    
+    deinit {
+        networkMonitor.cancel()
     }
 }
 

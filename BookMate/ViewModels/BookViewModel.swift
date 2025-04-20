@@ -150,6 +150,27 @@ class BookViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
+    func updateBookNotes(bookId: String, notes: String) {
+        // Update book notes implementation
+    }
+    
+    func updateBookPartnerSharing(bookId: String, isSharedWithPartner: Bool) {
+        isLoading = true
+        errorMessage = nil
+        
+        bookService.updateBookPartnerSharing(bookId: bookId, isSharedWithPartner: isSharedWithPartner)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.isLoading = false
+                if case .failure(let error) = completion {
+                    self?.errorMessage = error.localizedDescription
+                }
+            } receiveValue: { [weak self] updatedBook in
+                self?.updateBook(updatedBook)
+            }
+            .store(in: &cancellables)
+    }
+    
     // MARK: - Private Methods
     
     private func updateBookCollections() {

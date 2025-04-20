@@ -3,6 +3,7 @@ import SwiftUI
 struct BookDetailView: View {
     let book: Book
     @ObservedObject var bookViewModel: BookViewModel
+    @ObservedObject var userViewModel: UserViewModel
     
     @State private var showingReadingView = false
     @State private var showingShareSheet = false
@@ -17,6 +18,9 @@ struct BookDetailView: View {
     @State private var isFavorite = false
     @State private var isCurrentlyReading = false
     @State private var showAddedToast = false
+    
+    // Partner paylaşım bölümü
+    @State private var isSharedWithPartner = false
     
     var body: some View {
         ScrollView {
@@ -44,6 +48,9 @@ struct BookDetailView: View {
                 
                 // Kitap yönetim düğmeleri
                 bookManagementButtons
+                
+                // Partner paylaşım bölümü
+                partnerSharingSection
             }
             .padding()
             .onAppear {
@@ -56,6 +63,7 @@ struct BookDetailView: View {
                 notesText = book.userNotes
                 isFavorite = book.isFavorite
                 isCurrentlyReading = book.isCurrentlyReading
+                isSharedWithPartner = book.isSharedWithPartner
             }
             .sheet(isPresented: $showingReadingView) {
                 ReadingView(book: book, bookViewModel: bookViewModel, currentPage: $currentPage)
@@ -489,6 +497,76 @@ struct BookDetailView: View {
         .padding(.top, 12)
     }
     
+    // Partner paylaşım bölümü
+    private var partnerSharingSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Divider()
+                .padding(.top, 12)
+            
+            Text("Sevgilinizle Paylaşım")
+                .font(.headline)
+            
+            // Partner bilgisi
+            if let partnerName = userViewModel.currentUser?.partnerName {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "person.2.fill")
+                            .foregroundColor(.blue)
+                        
+                        Text("Bağlı olduğunuz kişi: \(partnerName)")
+                            .font(.subheadline)
+                    }
+                    
+                    // Ortak kitaplık paylaşım seçeneği
+                    Toggle(isOn: $isSharedWithPartner) {
+                        Text("Bu kitabı sevgilinizle paylaş")
+                            .font(.subheadline)
+                    }
+                    .onChange(of: isSharedWithPartner) { newValue in
+                        togglePartnerSharing(newValue)
+                    }
+                    
+                    if isSharedWithPartner {
+                        // Partner ilerleme durumu (eğer partner kitabı okuyorsa)
+                        if let partnerProgress = book.partnerProgress {
+                            HStack {
+                                Image(systemName: "book")
+                                    .foregroundColor(.green)
+                                
+                                Text("Sevgilinizin ilerlemesi: \(partnerProgress)/\(book.pageCount ?? 0) (%\(Int(Double(partnerProgress) / Double(book.pageCount ?? 1) * 100)))")
+                                    .font(.subheadline)
+                            }
+                            .padding(.top, 4)
+                        }
+                    }
+                }
+                .padding()
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(10)
+            } else {
+                // Partner ekleme seçeneği
+                HStack {
+                    Text("Kitaplarınızı paylaşmak için sevgilinizi ekleyin.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        // Profil sayfasında partner ekleme ekranına git
+                    }) {
+                        Text("Partner Ekle")
+                            .font(.subheadline)
+                            .foregroundColor(.blue)
+                    }
+                }
+                .padding()
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(10)
+            }
+        }
+    }
+    
     // MARK: - Yardımcı Fonksiyonlar
     
     private func formattedDate(_ date: Date?) -> String {
@@ -532,6 +610,10 @@ struct BookDetailView: View {
     
     private func updateNotes() {
         bookViewModel.updateBookNotes(bookId: book.id, notes: notesText)
+    }
+    
+    private func togglePartnerSharing(_ newValue: Bool) {
+        bookViewModel.updateBookPartnerSharing(bookId: book.id, isSharedWithPartner: newValue)
     }
 }
 
@@ -844,7 +926,7 @@ struct BookDetailView_Previews: PreviewProvider {
         )
         
         return NavigationView {
-            BookDetailView(book: sampleBook, bookViewModel: BookViewModel())
+            BookDetailView(book: sampleBook, bookViewModel: BookViewModel(), userViewModel: UserViewModel())
         }
     }
 } 

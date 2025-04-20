@@ -10,11 +10,11 @@ class CoreDataManager: DataManagerProtocol {
     // MARK: - Core Data stack
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "BookMate")
-        container.loadPersistentStores { _, error in
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
-                fatalError("Core Data store hatası: \(error), \(error.userInfo)")
+                print("Core Data yükleme hatası: \(error), \(error.userInfo)")
             }
-        }
+        })
         container.viewContext.automaticallyMergesChangesFromParent = true
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         return container
@@ -22,6 +22,11 @@ class CoreDataManager: DataManagerProtocol {
     
     var viewContext: NSManagedObjectContext {
         return persistentContainer.viewContext
+    }
+    
+    // Arka plan işlemleri için yeni bir context oluşturur
+    func backgroundContext() -> NSManagedObjectContext {
+        return persistentContainer.newBackgroundContext()
     }
     
     // MARK: - Core Data Utility Methods
@@ -32,7 +37,19 @@ class CoreDataManager: DataManagerProtocol {
                 try context.save()
             } catch {
                 let nserror = error as NSError
-                print("Kayıt hatası: \(nserror), \(nserror.userInfo)")
+                print("Core Data kaydetme hatası: \(nserror), \(nserror.userInfo)")
+            }
+        }
+    }
+    
+    // Verilen context'i kaydeder
+    func saveContext(_ context: NSManagedObjectContext) {
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                let nserror = error as NSError
+                print("Core Data kaydetme hatası: \(nserror), \(nserror.userInfo)")
             }
         }
     }
@@ -99,7 +116,7 @@ class CoreDataManager: DataManagerProtocol {
             
             // Mevcut kitabı bul veya yeni oluştur
             let fetchRequest: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "id == %@", book.id)
+            fetchRequest.predicate = NSPredicate(format: "id == %@", book.id ?? "")
             
             do {
                 let results = try context.fetch(fetchRequest)
@@ -109,12 +126,11 @@ class CoreDataManager: DataManagerProtocol {
                     bookEntity = existingBook
                 } else {
                     bookEntity = BookEntity(context: context)
-                    bookEntity.id = book.id
-                    bookEntity.dateAdded = book.dateAdded
+                    bookEntity.id = book.id ?? UUID().uuidString
                 }
                 
-                // Özellikleri güncelle
-                self.updateBookEntity(bookEntity, with: book)
+                // Kitap verilerini Core Data entity'sine dönüştür
+                self.updateBookEntity(bookEntity, from: book)
                 
                 self.saveContext()
                 promise(.success(true))
@@ -549,7 +565,8 @@ class CoreDataManager: DataManagerProtocol {
         )
     }
     
-    private func updateBookEntity(_ entity: BookEntity, with book: Book) {
+    private func updateBookEntity(_ entity: BookEntity, from book: Book) {
+        entity.id = book.id ?? UUID().uuidString
         entity.title = book.title
         entity.subtitle = book.subtitle
         entity.isbn = book.isbn

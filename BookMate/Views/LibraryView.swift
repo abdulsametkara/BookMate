@@ -1,7 +1,9 @@
 import SwiftUI
 import SceneKit
 
-struct LibraryView: View {
+// DEPRECATED: Bu dosya artık kullanılmamaktadır. Lütfen BookMate/BookMate/Views/LibraryView.swift dosyasını kullanın.
+// Bu dosya, uygulamanın eski bir versiyonu için kullanılmıştır ve referans amaçlı tutulmaktadır.
+struct OldLibraryView: View {
     @EnvironmentObject var bookViewModel: BookViewModel
     @EnvironmentObject var userViewModel: UserViewModel
     
@@ -10,6 +12,7 @@ struct LibraryView: View {
     @State private var searchText = ""
     @State private var showingSortOptions = false
     @State private var showingFilterOptions = false
+    @State private var showBookshelfView = false
     @State private var currentSortOption: SortOption = .recentlyAdded
     @State private var activeFilters: Set<FilterOption> = []
     
@@ -108,6 +111,10 @@ struct LibraryView: View {
                     activeFilters: $activeFilters
                 )
                 .presentationDetents([.medium])
+            }
+            .sheet(isPresented: $showBookshelfView) {
+                BookshelfView()
+                    .presentationDetents([.large])
             }
             .onAppear {
                 // Kütüphane verisini yükle
@@ -252,6 +259,20 @@ struct LibraryView: View {
                 .background(Color(.secondarySystemBackground))
                 .cornerRadius(8)
             }
+            
+            // 3D Kitaplık butonu
+            Button(action: { showBookshelfView = true }) {
+                HStack(spacing: 4) {
+                    Image(systemName: "cube")
+                    Text("3D")
+                        .font(.subheadline)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color.blue.opacity(0.1))
+                .foregroundColor(.blue)
+                .cornerRadius(8)
+            }
         }
         .padding()
     }
@@ -304,7 +325,7 @@ struct LibraryView: View {
     private var listView: some View {
         List {
             ForEach(filteredBooks) { book in
-                NavigationLink(destination: BookDetailView(book: book, bookViewModel: bookViewModel)) {
+                NavigationLink(destination: BookDetailView(book: book, bookViewModel: bookViewModel, userViewModel: userViewModel)) {
                     BookListItemView(book: book)
                 }
             }
@@ -317,7 +338,7 @@ struct LibraryView: View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150, maximum: 170))], spacing: 20) {
                 ForEach(filteredBooks) { book in
-                    NavigationLink(destination: BookDetailView(book: book, bookViewModel: bookViewModel)) {
+                    NavigationLink(destination: BookDetailView(book: book, bookViewModel: bookViewModel, userViewModel: userViewModel)) {
                         BookGridItemView(book: book)
                     }
                 }
@@ -659,11 +680,11 @@ struct FilterOptionsSheet: View {
 }
 
 // MARK: - Preview
-struct LibraryView_Previews: PreviewProvider {
+struct OldLibraryView_Previews: PreviewProvider {
     static var previews: some View {
         let bookViewModel = BookViewModel()
         let userViewModel = UserViewModel()
         
-        LibraryView(bookViewModel: bookViewModel, userViewModel: userViewModel)
+        OldLibraryView(bookViewModel: bookViewModel, userViewModel: userViewModel)
     }
 } 

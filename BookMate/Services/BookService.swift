@@ -1,299 +1,279 @@
 import Foundation
-import Combine
 
-// Error types for book operations
-enum BookServiceError: Error {
-    case networkError
-    case decodingError
-    case notFound
-    case authenticationError
-    case serverError
-    case unknownError
+class BookService {
+    // Singleton instance
+    static let shared = BookService()
     
-    var localizedDescription: String {
-        switch self {
-        case .networkError: return "Network connection error. Please check your internet connection."
-        case .decodingError: return "Error processing data from server."
-        case .notFound: return "The requested book couldn't be found."
-        case .authenticationError: return "Authentication error. Please login again."
-        case .serverError: return "Server error. Please try again later."
-        case .unknownError: return "An unknown error occurred. Please try again."
-        }
-    }
-}
-
-// Protocol defining book service operations
-protocol BookServiceProtocol {
-    func fetchUserBooks() -> AnyPublisher<[Book], Error>
-    func fetchPartnerSharedBooks() -> AnyPublisher<[Book], Error>
-    func addBookToLibrary(book: Book) -> AnyPublisher<Bool, Error>
-    func removeBookFromLibrary(bookId: String) -> AnyPublisher<Bool, Error>
-    func updateReadingProgress(bookId: String, progress: ReadingProgress) -> AnyPublisher<Bool, Error>
-    func shareBookWithPartner(bookId: String, shared: Bool) -> AnyPublisher<Bool, Error>
-    func addNoteToBook(bookId: String, note: ReadingNote) -> AnyPublisher<Bool, Error>
-    func deleteNote(bookId: String, noteId: String) -> AnyPublisher<Bool, Error>
-    func searchBooks(query: String) -> AnyPublisher<[Book], Error>
-    
-    // Book Collections methods
-    func fetchBookCollections(userId: String) -> AnyPublisher<[BookCollection], Error>
-    func fetchPartnerSharedCollections() -> AnyPublisher<[BookCollection], Error>
-    func saveBookCollection(_ collection: BookCollection) -> AnyPublisher<Bool, Error>
-    func deleteBookCollection(id: String) -> AnyPublisher<Bool, Error>
-    func addBookToCollection(bookId: String, collectionId: String) -> AnyPublisher<Bool, Error>
-    func removeBookFromCollection(bookId: String, collectionId: String) -> AnyPublisher<Bool, Error>
-}
-
-// Implementation of BookService using CoreData and remote API
-class BookService: BookServiceProtocol {
-    private let dataManager: DataManagerProtocol
-    private let networkService: NetworkServiceProtocol
-    
-    init(dataManager: DataManagerProtocol, networkService: NetworkServiceProtocol) {
-        self.dataManager = dataManager
-        self.networkService = networkService
+    private let baseURL = "https://www.googleapis.com/books/v1/volumes"
+    private var apiKey: String {
+        // Gerçek uygulamada bu değer Info.plist'ten veya başka bir güvenli kaynaktan alınmalı
+        return ProcessInfo.processInfo.environment["GOOGLE_BOOKS_API_KEY"] ?? "AIzaSyD_kV7iUD5TsUwPcJn-Sc1_RaIEK1sQxjk"
     }
     
-    func fetchUserBooks() -> AnyPublisher<[Book], Error> {
-        return dataManager.fetchBooks()
-            .eraseToAnyPublisher()
+    private init() {
+        print("BookService başlatıldı. API erişimi hazır.")
     }
     
-    func fetchPartnerSharedBooks() -> AnyPublisher<[Book], Error> {
-        return dataManager.fetchPartnerSharedBooks()
-            .eraseToAnyPublisher()
-    }
-    
-    func addBookToLibrary(book: Book) -> AnyPublisher<Bool, Error> {
-        return dataManager.saveBook(book)
-            .eraseToAnyPublisher()
-    }
-    
-    func removeBookFromLibrary(bookId: String) -> AnyPublisher<Bool, Error> {
-        return dataManager.deleteBook(id: bookId)
-            .eraseToAnyPublisher()
-    }
-    
-    func updateReadingProgress(bookId: String, progress: ReadingProgress) -> AnyPublisher<Bool, Error> {
-        return dataManager.updateReadingProgress(bookId: bookId, progress: progress)
-            .map { updatedBook -> Bool in
-                // Create reading activity based on progress changes
-                self.createReadingActivity(for: updatedBook)
-                return true
-            }
-            .eraseToAnyPublisher()
-    }
-    
-    func shareBookWithPartner(bookId: String, shared: Bool) -> AnyPublisher<Bool, Error> {
-        return dataManager.shareBookWithPartner(bookId: bookId, shared: shared)
-            .eraseToAnyPublisher()
-    }
-    
-    func addNoteToBook(bookId: String, note: ReadingNote) -> AnyPublisher<Bool, Error> {
-        return dataManager.addNoteToBook(bookId: bookId, note: note)
-            .eraseToAnyPublisher()
-    }
-    
-    func deleteNote(bookId: String, noteId: String) -> AnyPublisher<Bool, Error> {
-        return dataManager.deleteNote(bookId: bookId, noteId: noteId)
-            .eraseToAnyPublisher()
-    }
-    
-    func searchBooks(query: String) -> AnyPublisher<[Book], Error> {
-        // First search in local library
-        let localSearch = dataManager.searchBooks(query: query)
+    // Kitap aramak için
+    func searchBooks(query: String) async throws -> [BookSearchResult] {
+        // URL oluşturma
+        var components = URLComponents(string: baseURL)
+        components?.queryItems = [
+            URLQueryItem(name: "q", value: query),
+            URLQueryItem(name: "maxResults", value: "20"),
+            URLQueryItem(name: "key", value: apiKey)
+        ]
         
-        // Then search in remote API
-        let remoteSearch = networkService.searchBooks(query: query)
-            .catch { error -> AnyPublisher<[Book], Error> in
-                print("Remote search failed: \(error.localizedDescription)")
-                return Just([Book]())
-                    .setFailureType(to: Error.self)
-                    .eraseToAnyPublisher()
-            }
-        
-        // Combine results, remove duplicates based on ISBN
-        return Publishers.Merge(localSearch, remoteSearch)
-            .collect()
-            .map { results in
-                let books = results.flatMap { $0 }
-                var uniqueBooks = [Book]()
-                var seenISBNs = Set<String>()
-                
-                for book in books {
-                    if let isbn = book.isbn, !isbn.isEmpty {
-                        if !seenISBNs.contains(isbn) {
-                            seenISBNs.insert(isbn)
-                            uniqueBooks.append(book)
-                        }
-                    } else {
-                        uniqueBooks.append(book)
-                    }
-                }
-                
-                return uniqueBooks
-            }
-            .eraseToAnyPublisher()
-    }
-    
-    // MARK: - Book Collections Methods
-    
-    func fetchBookCollections(userId: String) -> AnyPublisher<[BookCollection], Error> {
-        return dataManager.fetchBookCollections(userId: userId)
-            .eraseToAnyPublisher()
-    }
-    
-    func fetchPartnerSharedCollections() -> AnyPublisher<[BookCollection], Error> {
-        return dataManager.fetchPartnerSharedCollections()
-            .eraseToAnyPublisher()
-    }
-    
-    func saveBookCollection(_ collection: BookCollection) -> AnyPublisher<Bool, Error> {
-        return dataManager.saveBookCollection(collection)
-            .eraseToAnyPublisher()
-    }
-    
-    func deleteBookCollection(id: String) -> AnyPublisher<Bool, Error> {
-        return dataManager.deleteBookCollection(id: id)
-            .eraseToAnyPublisher()
-    }
-    
-    func addBookToCollection(bookId: String, collectionId: String) -> AnyPublisher<Bool, Error> {
-        // First fetch the book
-        return dataManager.fetchBook(id: bookId)
-            .flatMap { [weak self] book -> AnyPublisher<BookCollection, Error> in
-                guard let self = self else {
-                    return Fail(error: BookServiceError.unknownError).eraseToAnyPublisher()
-                }
-                
-                // Then fetch the collection
-                return self.dataManager.fetchBookCollection(id: collectionId)
-            }
-            .flatMap { [weak self] collection -> AnyPublisher<Bool, Error> in
-                guard let self = self else {
-                    return Fail(error: BookServiceError.unknownError).eraseToAnyPublisher()
-                }
-                
-                // Fetch book to add
-                return self.dataManager.fetchBook(id: bookId)
-                    .flatMap { book -> AnyPublisher<Bool, Error> in
-                        var updatedCollection = collection
-                        updatedCollection.addBook(book)
-                        
-                        // Save the updated collection
-                        return self.dataManager.saveBookCollection(updatedCollection)
-                    }
-            }
-            .eraseToAnyPublisher()
-    }
-    
-    func removeBookFromCollection(bookId: String, collectionId: String) -> AnyPublisher<Bool, Error> {
-        // Fetch the collection
-        return dataManager.fetchBookCollection(id: collectionId)
-            .flatMap { [weak self] collection -> AnyPublisher<Bool, Error> in
-                guard let self = self else {
-                    return Fail(error: BookServiceError.unknownError).eraseToAnyPublisher()
-                }
-                
-                var updatedCollection = collection
-                updatedCollection.removeBook(withId: bookId)
-                
-                // Save the updated collection
-                return self.dataManager.saveBookCollection(updatedCollection)
-            }
-            .eraseToAnyPublisher()
-    }
-    
-    // Helper method to create reading activity
-    private func createReadingActivity(for book: Book) {
-        guard let userId = UserDefaults.standard.string(forKey: "currentUserId"),
-              let username = UserDefaults.standard.string(forKey: "currentUsername"),
-              let progress = book.userProgress else {
-            return
+        guard let url = components?.url else {
+            throw NSError(domain: "BookService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Geçersiz URL"])
         }
         
-        let activityType: ReadingActivityType
-        let description: String
+        // API isteği
+        let (data, response) = try await URLSession.shared.data(from: url)
         
-        switch progress.readingStatus {
-        case .completed:
-            activityType = .finishedReading
-            description = "\(username) finished reading \(book.title)."
-        case .inProgress:
-            if progress.completionPercentage > 0 && progress.completionPercentage < 100 {
-                activityType = .updatedProgress
-                description = "\(username) reached \(Int(progress.completionPercentage))% in \(book.title)."
-            } else {
-                activityType = .startedReading
-                description = "\(username) started reading \(book.title)."
-            }
-        case .notStarted:
-            activityType = .addedToLibrary
-            description = "\(username) added \(book.title) to their library."
-        case .onHold:
-            activityType = .pausedReading
-            description = "\(username) paused reading \(book.title)."
-        case .abandoned:
-            activityType = .abandonedBook
-            description = "\(username) abandoned reading \(book.title)."
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw NSError(domain: "BookService", code: 1, userInfo: [NSLocalizedDescriptionKey: "API yanıtı başarısız oldu"])
         }
         
-        let activity = ReadingActivity(
-            userId: userId,
-            username: username,
-            bookId: book.id,
-            bookTitle: book.title,
-            coverImageUrl: book.coverImageUrl,
-            activityType: activityType,
-            description: description,
-            timestamp: Date()
+        // JSON'u ayrıştırma
+        let searchResponse = try JSONDecoder().decode(GoogleBooksResponse.self, from: data)
+        
+        guard let items = searchResponse.items else {
+            return []
+        }
+        
+        // Cache'leme işlemi
+        Task {
+            try await cacheSearchResults(items)
+        }
+        
+        // BookSearchResult modellerine dönüştürme
+        return items.compactMap { volume in
+            guard let volumeInfo = volume.volumeInfo else { return nil }
+            
+            return BookSearchResult(
+                id: volume.id ?? UUID().uuidString,
+                title: volumeInfo.title ?? "Başlık Yok",
+                authors: volumeInfo.authors ?? ["Yazar Belirtilmemiş"],
+                publisher: volumeInfo.publisher,
+                publishedDate: volumeInfo.publishedDate,
+                description: volumeInfo.description,
+                pageCount: volumeInfo.pageCount ?? 0,
+                categories: volumeInfo.categories ?? [],
+                imageLinks: volumeInfo.imageLinks,
+                isbn: extractISBN(from: volumeInfo.industryIdentifiers)
+            )
+        }
+    }
+    
+    // ISBN ile kitap aramak için
+    func searchBookByISBN(isbn: String) async throws -> BookSearchResult? {
+        // ISBN formatını temizleme
+        let cleanISBN = isbn.replacingOccurrences(of: "-", with: "")
+        
+        // Önce cache'de kontrol et
+        if let cachedResult = checkCache(for: cleanISBN) {
+            return cachedResult
+        }
+        
+        // URL oluşturma
+        var components = URLComponents(string: baseURL)
+        components?.queryItems = [
+            URLQueryItem(name: "q", value: "isbn:\(cleanISBN)"),
+            URLQueryItem(name: "key", value: apiKey)
+        ]
+        
+        guard let url = components?.url else {
+            throw NSError(domain: "BookService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Geçersiz URL"])
+        }
+        
+        // API isteği
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw NSError(domain: "BookService", code: 1, userInfo: [NSLocalizedDescriptionKey: "API yanıtı başarısız oldu"])
+        }
+        
+        // JSON'u ayrıştırma
+        let searchResponse = try JSONDecoder().decode(GoogleBooksResponse.self, from: data)
+        
+        guard let items = searchResponse.items, let firstItem = items.first, let volumeInfo = firstItem.volumeInfo else {
+            return nil
+        }
+        
+        // Cache'leme işlemi
+        Task {
+            try await cacheSearchResults([firstItem])
+        }
+        
+        // BookSearchResult modeline dönüştürme
+        return BookSearchResult(
+            id: firstItem.id ?? UUID().uuidString,
+            title: volumeInfo.title ?? "Başlık Yok",
+            authors: volumeInfo.authors ?? ["Yazar Belirtilmemiş"],
+            publisher: volumeInfo.publisher,
+            publishedDate: volumeInfo.publishedDate,
+            description: volumeInfo.description,
+            pageCount: volumeInfo.pageCount ?? 0,
+            categories: volumeInfo.categories ?? [],
+            imageLinks: volumeInfo.imageLinks,
+            isbn: extractISBN(from: volumeInfo.industryIdentifiers)
         )
-        
-        // Save the activity
-        _ = dataManager.saveReadingActivity(activity)
     }
-}
-
-// Enumeration for reading activity types
-enum ReadingActivityType: String, Codable {
-    case startedReading
-    case updatedProgress
-    case finishedReading
-    case addedToLibrary
-    case pausedReading
-    case abandonedBook
-    case addedNote
-    case sharedBook
-}
-
-// Reading activity model
-struct ReadingActivity: Identifiable, Codable {
-    let id: String
-    let userId: String
-    let username: String
-    let bookId: String
-    let bookTitle: String
-    let coverImageUrl: URL?
-    let activityType: ReadingActivityType
-    let description: String
-    let timestamp: Date
     
-    init(id: String = UUID().uuidString,
-         userId: String,
-         username: String,
-         bookId: String,
-         bookTitle: String,
-         coverImageUrl: URL? = nil,
-         activityType: ReadingActivityType,
-         description: String,
-         timestamp: Date = Date()) {
-        self.id = id
-        self.userId = userId
-        self.username = username
-        self.bookId = bookId
-        self.bookTitle = bookTitle
-        self.coverImageUrl = coverImageUrl
-        self.activityType = activityType
-        self.description = description
-        self.timestamp = timestamp
+    // Kitap arama sonucunu Book modeline dönüştürme
+    func convertToBook(from searchResult: BookSearchResult) -> Book {
+        // ISBN ve kapak URL oluşturma
+        let coverURL = searchResult.imageLinks?.thumbnail != nil ? URL(string: searchResult.imageLinks!.thumbnail!) : nil
+        
+        return Book(
+            id: UUID().uuidString,
+            title: searchResult.title,
+            author: searchResult.authors.joined(separator: ", "),
+            coverURL: coverURL,
+            isbn: searchResult.isbn,
+            pageCount: searchResult.pageCount,
+            currentPage: 0,
+            dateAdded: Date(),
+            dateFinished: nil,
+            genre: searchResult.categories.first,
+            notes: nil,
+            isFavorite: false,
+            rating: nil
+        )
     }
+    
+    // MARK: - Cache İşlemleri
+    
+    private func cacheSearchResults(_ items: [Volume]) async throws {
+        // UserDefaults'a kaydetme (gerçek uygulamada Core Data veya başka bir kalıcı depolama kullanılmalı)
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(items)
+        
+        let timestamp = Date().timeIntervalSince1970
+        
+        var cachedItems = UserDefaults.standard.dictionary(forKey: "BookSearchCache") as? [String: Any] ?? [:]
+        
+        for item in items {
+            if let id = item.id, let isbn = extractISBN(from: item.volumeInfo?.industryIdentifiers) {
+                cachedItems[isbn] = ["data": data, "timestamp": timestamp]
+            }
+        }
+        
+        UserDefaults.standard.set(cachedItems, forKey: "BookSearchCache")
+    }
+    
+    private func checkCache(for isbn: String) -> BookSearchResult? {
+        guard let cachedItems = UserDefaults.standard.dictionary(forKey: "BookSearchCache") as? [String: Any],
+              let itemCache = cachedItems[isbn] as? [String: Any],
+              let data = itemCache["data"] as? Data,
+              let timestamp = itemCache["timestamp"] as? TimeInterval else {
+            return nil
+        }
+        
+        // Cache'in 7 günden eski olup olmadığını kontrol et
+        let now = Date().timeIntervalSince1970
+        let cacheAge = now - timestamp
+        
+        if cacheAge > 7 * 24 * 3600 { // 7 gün
+            return nil // Cache süresi doldu
+        }
+        
+        do {
+            let decoder = JSONDecoder()
+            let volumes = try decoder.decode([Volume].self, from: data)
+            
+            if let firstVolume = volumes.first, let volumeInfo = firstVolume.volumeInfo {
+                return BookSearchResult(
+                    id: firstVolume.id ?? UUID().uuidString,
+                    title: volumeInfo.title ?? "Başlık Yok",
+                    authors: volumeInfo.authors ?? ["Yazar Belirtilmemiş"],
+                    publisher: volumeInfo.publisher,
+                    publishedDate: volumeInfo.publishedDate,
+                    description: volumeInfo.description,
+                    pageCount: volumeInfo.pageCount ?? 0,
+                    categories: volumeInfo.categories ?? [],
+                    imageLinks: volumeInfo.imageLinks,
+                    isbn: extractISBN(from: volumeInfo.industryIdentifiers)
+                )
+            }
+        } catch {
+            print("Cache okuma hatası: \(error)")
+        }
+        
+        return nil
+    }
+    
+    // Industry identifiers'dan ISBN çıkarma
+    private func extractISBN(from identifiers: [IndustryIdentifier]?) -> String? {
+        guard let identifiers = identifiers else { return nil }
+        
+        // Önce ISBN_13'e bakalım
+        if let isbn13 = identifiers.first(where: { $0.type == "ISBN_13" }) {
+            return isbn13.identifier
+        }
+        
+        // Yoksa ISBN_10'u kullanalım
+        if let isbn10 = identifiers.first(where: { $0.type == "ISBN_10" }) {
+            return isbn10.identifier
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - API Cevap Modelleri
+
+struct GoogleBooksResponse: Codable {
+    let kind: String?
+    let totalItems: Int?
+    let items: [Volume]?
+}
+
+struct Volume: Codable {
+    let kind: String?
+    let id: String?
+    let etag: String?
+    let selfLink: String?
+    let volumeInfo: VolumeInfo?
+}
+
+struct VolumeInfo: Codable {
+    let title: String?
+    let subtitle: String?
+    let authors: [String]?
+    let publisher: String?
+    let publishedDate: String?
+    let description: String?
+    let industryIdentifiers: [IndustryIdentifier]?
+    let pageCount: Int?
+    let categories: [String]?
+    let imageLinks: ImageLinks?
+    let language: String?
+    let previewLink: String?
+    let infoLink: String?
+}
+
+struct IndustryIdentifier: Codable {
+    let type: String
+    let identifier: String
+}
+
+struct ImageLinks: Codable {
+    let smallThumbnail: String?
+    let thumbnail: String?
+}
+
+// Arama sonucunu daha kolay yönetmek için model
+struct BookSearchResult {
+    let id: String
+    let title: String
+    let authors: [String]
+    let publisher: String?
+    let publishedDate: String?
+    let description: String?
+    let pageCount: Int
+    let categories: [String]
+    let imageLinks: ImageLinks?
+    let isbn: String?
 } 
