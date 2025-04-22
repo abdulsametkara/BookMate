@@ -241,6 +241,103 @@ class CoreDataService {
         return user
     }
     
+    // MARK: - Reading Sessions
+    
+    func saveReadingSession(_ session: ReadingSession) {
+        let context = CoreDataManager.shared.viewContext
+        
+        // Yeni okuma oturumu oluştur
+        let readingSessionEntity = ReadingSessionEntity(context: context)
+        readingSessionEntity.id = session.id
+        readingSessionEntity.bookId = session.bookId
+        readingSessionEntity.startTime = session.startTime
+        readingSessionEntity.endTime = session.endTime
+        readingSessionEntity.duration = Int32(session.duration)
+        
+        // Kaydet
+        do {
+            try context.save()
+            print("Okuma oturumu kaydedildi: \(session.id)")
+        } catch {
+            print("Okuma oturumu kaydedilemedi: \(error.localizedDescription)")
+        }
+    }
+    
+    func getReadingSessions(from startDate: Date, to endDate: Date) -> [ReadingSession] {
+        let context = CoreDataManager.shared.viewContext
+        let fetchRequest: NSFetchRequest<ReadingSessionEntity> = ReadingSessionEntity.fetchRequest()
+        
+        // Tarih aralığına göre filtrele
+        let startPredicate = NSPredicate(format: "startTime >= %@", startDate as NSDate)
+        let endPredicate = NSPredicate(format: "startTime <= %@", endDate as NSDate)
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [startPredicate, endPredicate])
+        fetchRequest.predicate = compoundPredicate
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.map { entity in
+                ReadingSession(
+                    id: entity.id ?? UUID().uuidString, 
+                    bookId: entity.bookId ?? "",
+                    startTime: entity.startTime ?? Date(),
+                    endTime: entity.endTime,
+                    duration: Int(entity.duration)
+                )
+            }
+        } catch {
+            print("Okuma oturumları getirilemedi: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+    func getAllReadingSessions() -> [ReadingSession] {
+        let context = CoreDataManager.shared.viewContext
+        let fetchRequest: NSFetchRequest<ReadingSessionEntity> = ReadingSessionEntity.fetchRequest()
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.map { entity in
+                ReadingSession(
+                    id: entity.id ?? UUID().uuidString, 
+                    bookId: entity.bookId ?? "",
+                    startTime: entity.startTime ?? Date(),
+                    endTime: entity.endTime,
+                    duration: Int(entity.duration)
+                )
+            }
+        } catch {
+            print("Tüm okuma oturumları getirilemedi: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+    func getReadingSessionsForBook(bookId: String) -> [ReadingSession] {
+        let context = CoreDataManager.shared.viewContext
+        let fetchRequest: NSFetchRequest<ReadingSessionEntity> = ReadingSessionEntity.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "bookId == %@", bookId)
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.map { entity in
+                ReadingSession(
+                    id: entity.id ?? UUID().uuidString, 
+                    bookId: entity.bookId ?? "",
+                    startTime: entity.startTime ?? Date(),
+                    endTime: entity.endTime,
+                    duration: Int(entity.duration)
+                )
+            }
+        } catch {
+            print("Kitap için okuma oturumları getirilemedi: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+    func getTotalReadingTimeForBook(bookId: String) -> Int {
+        let sessions = getReadingSessionsForBook(bookId: bookId)
+        return sessions.reduce(0) { $0 + $1.duration }
+    }
+    
     // MARK: - Utils
     
     func saveContext() {

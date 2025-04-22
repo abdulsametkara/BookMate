@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct BookCardView: View {
-    let book: Book
+    let book: GoogleBook
     var compact: Bool = false
     
     var body: some View {
@@ -111,7 +111,7 @@ struct BookCoverView: View {
 struct BookCardView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 20) {
-            BookCardView(book: Book(
+            BookCardView(book: GoogleBook(
                 id: UUID(),
                 isbn: "12345678",
                 title: "Sherlock Holmes'un Maceraları",
@@ -127,7 +127,7 @@ struct BookCardView_Previews: PreviewProvider {
                 readingProgressPercentage: 65
             ))
             
-            BookCardView(book: Book(
+            BookCardView(book: GoogleBook(
                 id: UUID(),
                 isbn: "98765432",
                 title: "Yüzüklerin Efendisi: Yüzük Kardeşliği",
@@ -143,7 +143,7 @@ struct BookCardView_Previews: PreviewProvider {
                 readingProgressPercentage: 100
             ))
             
-            BookCardView(book: Book(
+            BookCardView(book: GoogleBook(
                 id: UUID(),
                 isbn: "45678123",
                 title: "Küçük Prens",

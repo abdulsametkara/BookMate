@@ -41,6 +41,11 @@ struct MainTabView: View {
                     Label("Kitaplığım", systemImage: "books.vertical")
                 }
             
+            ReadingTimerView()
+                .tabItem {
+                    Label("Zamanlayıcı", systemImage: "timer")
+                }
+            
             BookshelfView()
                 .tabItem {
                     Label("3D Kitaplık", systemImage: "cube")

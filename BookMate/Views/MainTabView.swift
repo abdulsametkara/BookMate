@@ -6,6 +6,7 @@ struct MainTabView: View {
     let tabs = [
         TabItem(title: "Ana Sayfa", icon: "house", selectedIcon: "house.fill"),
         TabItem(title: "Kütüphane", icon: "books.vertical", selectedIcon: "books.vertical.fill"),
+        TabItem(title: "Zamanlayıcı", icon: "timer", selectedIcon: "timer.fill"),
         TabItem(title: "Koleksiyonlar", icon: "folder", selectedIcon: "folder.fill"),
         TabItem(title: "Aktivite", icon: "bell", selectedIcon: "bell.fill", badgeValue: 2),
         TabItem(title: "Profil", icon: "person", selectedIcon: "person.fill")
@@ -15,6 +16,7 @@ struct MainTabView: View {
     @StateObject private var userViewModel = UserViewModel()
     @StateObject private var bookViewModel = BookViewModel()
     @StateObject private var collectionViewModel = BookCollectionViewModel()
+    @StateObject private var readingTimerViewModel = ReadingTimerViewModel()
     
     var body: some View {
         CustomTabView(selectedTab: $selectedTab, tabs: tabs) { index in
@@ -28,13 +30,16 @@ struct MainTabView: View {
                     .environmentObject(collectionViewModel)
                     .environmentObject(userViewModel)
             case 2:
+                ReadingTimerView()
+                    .environmentObject(bookViewModel)
+            case 3:
                 CollectionsView()
                     .environmentObject(collectionViewModel)
                     .environmentObject(bookViewModel)
-            case 3:
+            case 4:
                 ActivityView()
                     .environmentObject(userViewModel)
-            case 4:
+            case 5:
                 ProfileView()
                     .environmentObject(userViewModel)
                     .environmentObject(bookViewModel)
@@ -511,4 +516,8 @@ struct MainTabView_Previews: PreviewProvider {
     static var previews: some View {
         MainTabView()
     }
+}
+
+enum Tab: Int {
+    case home, library, timer, couple, profile
 } 

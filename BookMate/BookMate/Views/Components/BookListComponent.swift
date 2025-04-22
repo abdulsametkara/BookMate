@@ -1,15 +1,15 @@
 import SwiftUI
 
 struct BookListComponent: View {
-    let books: [Book]
+    let books: [GoogleBook]
     let title: String
     var showMoreAction: (() -> Void)? = nil
-    var onSelectBook: ((Book) -> Void)? = nil
+    var onSelectBook: ((GoogleBook) -> Void)? = nil
     var emptyStateMessage: String = "Henüz kitap eklenmemiş"
     var isCompact: Bool = false
     var maxItems: Int? = nil
     
-    var displayedBooks: [Book] {
+    var displayedBooks: [GoogleBook] {
         if let maxItems = maxItems, books.count > maxItems {
             return Array(books.prefix(maxItems))
         }
@@ -78,7 +78,7 @@ struct BookListComponent_Previews: PreviewProvider {
             VStack(spacing: 24) {
                 BookListComponent(
                     books: [
-                        Book(
+                        GoogleBook(
                             id: UUID(),
                             isbn: "12345678",
                             title: "Sherlock Holmes'un Maceraları",
@@ -93,7 +93,7 @@ struct BookListComponent_Previews: PreviewProvider {
                             readingStatus: .inProgress,
                             readingProgressPercentage: 65
                         ),
-                        Book(
+                        GoogleBook(
                             id: UUID(),
                             isbn: "98765432",
                             title: "Yüzüklerin Efendisi: Yüzük Kardeşliği",
@@ -122,7 +122,7 @@ struct BookListComponent_Previews: PreviewProvider {
                 
                 BookListComponent(
                     books: [
-                        Book(
+                        GoogleBook(
                             id: UUID(),
                             isbn: "45678123",
                             title: "Küçük Prens",

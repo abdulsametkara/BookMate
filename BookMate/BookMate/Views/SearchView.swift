@@ -6,7 +6,7 @@ struct SearchView: View {
     @ObservedObject var bookViewModel: BookViewModel
     
     @State private var searchText = ""
-    @State private var searchResults: [Book] = []
+    @State private var searchResults: [GoogleBook] = []
     @State private var isSearching = false
     @State private var showAlert = false
     @State private var errorMessage = ""
@@ -144,7 +144,7 @@ struct SearchView: View {
         }
     }
     
-    private func searchResultRow(_ book: Book) -> some View {
+    private func searchResultRow(_ book: GoogleBook) -> some View {
         HStack(spacing: 15) {
             // Kitap kapağı
             if let imageLinks = book.imageLinks, 
@@ -248,41 +248,49 @@ struct SearchView: View {
             let isbnMatch = book.isbn?.lowercased().contains(searchTerm) ?? false
             let categoryMatch = book.categories?.joined(separator: " ").lowercased().contains(searchTerm) ?? false
             
-            if titleMatch {
-                print("Başlık eşleşti: \(book.title)")
-            }
-            if authorMatch {
-                print("Yazar eşleşti: \(book.authorsText)")
-            }
-            
-            // Herhangi bir alan eşleşirse true döndür
             return titleMatch || authorMatch || isbnMatch || categoryMatch
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            print("Arama sonucu: \(filtered.count) kitap bulundu")
-            if filtered.isEmpty {
-                print("Arama sonucu bulunamadı: \(searchTerm)")
-                
-                // Mevcut kitapların başlıklarını kontrol edelim
-                print("Mevcut kitap başlıkları:")
-                for book in allBooks {
-                    print("- \(book.title) (Yazarlar: \(book.authorsText))")
-                }
+        // Sonuçları sırala - başlık eşleşmelerine öncelik ver
+        searchResults = filtered.sorted { (book1, book2) -> Bool in
+            // Başlık tam eşleşmelerine öncelik ver
+            if book1.title.lowercased() == searchTerm && book2.title.lowercased() != searchTerm {
+                return true
+            }
+            if book2.title.lowercased() == searchTerm && book1.title.lowercased() != searchTerm {
+                return false
             }
             
-            // Filtrelenmiş kitapları atayalım
-            self.searchResults = filtered
-            self.isSearching = false
+            // Sonra başlık kısmi eşleşmelerine
+            let title1ContainsTerm = book1.title.lowercased().contains(searchTerm)
+            let title2ContainsTerm = book2.title.lowercased().contains(searchTerm)
+            
+            if title1ContainsTerm && !title2ContainsTerm {
+                return true
+            }
+            if !title1ContainsTerm && title2ContainsTerm {
+                return false
+            }
+            
+            // Son olarak alfabetik sırala
+            return book1.title < book2.title
+        }
+        
+        isSearching = false
+        
+        // Sonuç bilgisi
+        if searchResults.isEmpty {
+            errorMessage = "'\(searchText)' için sonuç bulunamadı."
+            showAlert = true
+        } else {
+            print("\(searchResults.count) kitap bulundu")
         }
     }
     
-    private func addBookToLibrary(_ book: Book) {
-        // Kitabı kütüphaneye ekle
+    private func addBookToLibrary(_ book: GoogleBook) {
         bookViewModel.addBook(book)
         
-        // Başarılı mesajı
-        errorMessage = "\(book.title) kitabınıza eklendi."
+        errorMessage = "\(book.title) kitaplığınıza eklendi."
         showAlert = true
     }
 }

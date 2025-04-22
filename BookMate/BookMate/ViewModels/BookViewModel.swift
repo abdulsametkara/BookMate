@@ -2,9 +2,9 @@ import Foundation
 import Combine
 
 class BookViewModel: ObservableObject {
-    @Published var allBooks: [Book] = []
-    @Published var userLibrary: [Book] = []
-    @Published var wishlistBooks: [Book] = []
+    @Published var allBooks: [GoogleBook] = []
+    @Published var userLibrary: [GoogleBook] = []
+    @Published var wishlistBooks: [GoogleBook] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
@@ -20,7 +20,7 @@ class BookViewModel: ObservableObject {
     
     private func loadBooks() {
         // Örnek kitaplar
-        allBooks = Book.samples
+        allBooks = GoogleBook.samples
         userLibrary = allBooks
         print("Örnek kitaplar yüklendi: \(allBooks.count) kitap")
     }
@@ -28,8 +28,8 @@ class BookViewModel: ObservableObject {
     // Arama için çeşitli örnek kitaplar ekleyelim
     private func addSampleBooksForSearch() {
         // Popüler kitaplar listesi - arama için daha fazla seçenek
-        let extraSampleBooks: [Book] = [
-            Book(
+        let extraSampleBooks: [GoogleBook] = [
+            GoogleBook(
                 id: UUID(),
                 isbn: "9780439023481",
                 title: "Açlık Oyunları",
@@ -43,7 +43,7 @@ class BookViewModel: ObservableObject {
                 language: "tr",
                 readingStatus: .notStarted
             ),
-            Book(
+            GoogleBook(
                 id: UUID(),
                 isbn: "9789750719387",
                 title: "Harry Potter ve Felsefe Taşı",
@@ -57,7 +57,7 @@ class BookViewModel: ObservableObject {
                 language: "tr",
                 readingStatus: .notStarted
             ),
-            Book(
+            GoogleBook(
                 id: UUID(),
                 isbn: "9789753424080",
                 title: "Yüzüklerin Efendisi: Yüzük Kardeşliği",
@@ -80,43 +80,43 @@ class BookViewModel: ObservableObject {
     
     // MARK: - Computed Properties
     
-    var currentlyReadingBook: Book? {
+    var currentlyReadingBook: GoogleBook? {
         userLibrary.first { $0.readingStatus == .inProgress }
     }
     
-    var recentlyAddedBooks: [Book] {
-        userLibrary.sorted { (book1: Book, book2: Book) -> Bool in
+    var recentlyAddedBooks: [GoogleBook] {
+        userLibrary.sorted { (book1: GoogleBook, book2: GoogleBook) -> Bool in
             return (book1.dateAdded ?? Date()) > (book2.dateAdded ?? Date())
         }.prefix(5).map { $0 }
     }
     
-    var completedBooks: [Book] {
+    var completedBooks: [GoogleBook] {
         userLibrary.filter { $0.readingStatus == .finished }
     }
     
     // MARK: - Wishlist Functions
     
-    func addToWishlist(_ book: Book) {
+    func addToWishlist(_ book: GoogleBook) {
         guard !isInWishlist(book) else { return }
         wishlistBooks.append(book)
     }
     
-    func removeFromWishlist(_ book: Book) {
+    func removeFromWishlist(_ book: GoogleBook) {
         wishlistBooks.removeAll { $0.id == book.id }
     }
     
-    func isInWishlist(_ book: Book) -> Bool {
+    func isInWishlist(_ book: GoogleBook) -> Bool {
         wishlistBooks.contains { $0.id == book.id }
     }
     
-    func addToLibrary(_ book: Book) {
+    func addToLibrary(_ book: GoogleBook) {
         guard !userLibrary.contains(where: { $0.id == book.id }) else { return }
         userLibrary.append(book)
     }
     
     // MARK: - Book Management Functions
     
-    func addBook(_ book: Book) {
+    func addBook(_ book: GoogleBook) {
         // Kitabın zaten kütüphanede olup olmadığını kontrol et
         if userLibrary.contains(where: { $0.title == book.title && (book.authors.first ?? "") == ($0.authors.first ?? "") }) {
             print("Bu kitap zaten kütüphanenizde var.")
@@ -139,7 +139,7 @@ class BookViewModel: ObservableObject {
         print("Kitap başarıyla eklendi: \(book.title)")
     }
     
-    func updateBookStatus(_ book: Book, status: ReadingStatus) {
+    func updateBookStatus(_ book: GoogleBook, status: ReadingStatus) {
         if let index = userLibrary.firstIndex(where: { $0.id == book.id }) {
             userLibrary[index].readingStatus = status
             
@@ -152,7 +152,7 @@ class BookViewModel: ObservableObject {
         }
     }
     
-    func updateCurrentPage(_ book: Book, page: Int) {
+    func updateCurrentPage(_ book: GoogleBook, page: Int) {
         if let index = userLibrary.firstIndex(where: { $0.id == book.id }) {
             userLibrary[index].currentPage = page
             userLibrary[index].lastReadAt = Date()
@@ -176,7 +176,7 @@ class BookViewModel: ObservableObject {
     }
     
     // Kitabı "şu an okunuyor" olarak işaretler
-    func markAsCurrentlyReading(_ book: Book) {
+    func markAsCurrentlyReading(_ book: GoogleBook) {
         // Önce şu an okunan kitabı varsa onun durumunu güncelle
         if let current = currentlyReadingBook, let index = userLibrary.firstIndex(where: { $0.id == current.id }) {
             userLibrary[index].readingStatus = .notStarted

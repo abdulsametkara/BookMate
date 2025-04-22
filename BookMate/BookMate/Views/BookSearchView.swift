@@ -197,7 +197,7 @@ struct BookSearchView: View {
     }
     
     private func addToLibrary(_ bookResult: BookSearchResult) {
-        // BookResult'ı Book modeline dönüştür
+        // BookResult'ı GoogleBook modeline dönüştür
         let book = bookResult.toBook()
         
         // Kitabı kütüphaneye ekle
@@ -208,7 +208,7 @@ struct BookSearchView: View {
     }
     
     private func addToWishlist(_ bookResult: BookSearchResult) {
-        // BookResult'ı Book modeline dönüştür
+        // BookResult'ı GoogleBook modeline dönüştür
         let book = bookResult.toBook()
         
         // Kitabı istek listesine ekle
@@ -249,34 +249,38 @@ struct BookResultRow: View {
                     .font(.headline)
                     .lineLimit(2)
                 
-                Text(book.authors.joined(separator: ", "))
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-                
-                if let pageCount = book.pageCount {
-                    Text("\(pageCount) sayfa")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                if let categories = book.categories, !categories.isEmpty {
-                    Text(categories.joined(separator: ", "))
-                        .font(.caption)
+                if !book.authors.isEmpty {
+                    Text(book.authors.joined(separator: ", "))
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
+                
+                Spacer(minLength: 4)
+                
+                HStack {
+                    if let pages = book.pageCount {
+                        Text("\(pages) sayfa")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    if let publishedDate = book.publishedDate {
+                        Text(publishedDate)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
-            
-            Spacer()
-            
-            Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(10)
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(.systemBackground))
+                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+        )
     }
     
     private var bookCoverPlaceholder: some View {
@@ -284,113 +288,107 @@ struct BookResultRow: View {
             .fill(Color(.systemGray5))
             .overlay(
                 Image(systemName: "book.closed")
-                    .resizable()
-                    .scaledToFit()
                     .foregroundColor(.gray)
-                    .padding(12)
             )
     }
 }
 
-// Arama sonuçları için model
+// Arama sonucu modeli
 struct BookSearchResult: Identifiable {
-    let id: String
+    let id = UUID()
     let title: String
     let authors: [String]
     let description: String?
     let coverUrl: String?
     let pageCount: Int?
-    let categories: [String]?
     let publishedDate: String?
-    let publisher: String?
     let isbn: String?
+    let categories: [String]?
+    let publisher: String?
+    let language: String?
     
-    // Book modeline dönüştürme
-    func toBook() -> Book {
-        var imageLinks: ImageLinks? = nil
+    // GoogleBook modeline dönüştürme
+    func toBook() -> GoogleBook {
+        // ImageLinks nesnesini oluştur
+        let imageLinks: ImageLinks?
         if let coverUrl = coverUrl {
             imageLinks = ImageLinks(small: nil, thumbnail: coverUrl, medium: nil, large: nil)
+        } else {
+            imageLinks = nil
         }
         
-        return Book(
+        return GoogleBook(
             id: UUID(),
             isbn: isbn,
             title: title,
-            authors: authors,
+            authors: authors.isEmpty ? ["Bilinmeyen Yazar"] : authors,
             description: description,
             pageCount: pageCount,
             categories: categories,
             imageLinks: imageLinks,
             publishedDate: publishedDate,
             publisher: publisher,
-            language: "tr", // Varsayılan dil
-            readingStatus: .notStarted
+            language: language
         )
     }
     
-    // Google Books API yanıtından oluşturma
+    // API yanıtından BookSearchResult oluşturma
     static func fromSearchItem(_ item: BookSearchItem) -> BookSearchResult? {
-        guard let volumeInfo = item.volumeInfo,
-              let title = volumeInfo.title else {
-            return nil
-        }
+        guard let volumeInfo = item.volumeInfo else { return nil }
         
-        // Yazarları al veya varsayılan değer ver
-        let authors = volumeInfo.authors ?? ["Yazar Belirtilmemiş"]
+        // ISBN'i bul
+        let isbn = volumeInfo.industryIdentifiers?.first { $0.type.contains("ISBN") }?.identifier
         
-        // ISBN numaralarını al
-        let isbn = volumeInfo.industryIdentifiers?.first(where: { 
-            $0.type == "ISBN_13" || $0.type == "ISBN_10" 
-        })?.identifier
+        // Kapak URL'ini al
+        let coverUrl = volumeInfo.imageLinks?.thumbnail?.replacingOccurrences(of: "http://", with: "https://")
         
         return BookSearchResult(
-            id: item.id ?? UUID().uuidString,
-            title: title,
-            authors: authors,
+            title: volumeInfo.title ?? "Bilinmeyen Başlık",
+            authors: volumeInfo.authors ?? [],
             description: volumeInfo.description,
-            coverUrl: volumeInfo.imageLinks?.thumbnail?.replacingOccurrences(of: "http://", with: "https://"),
+            coverUrl: coverUrl,
             pageCount: volumeInfo.pageCount,
-            categories: volumeInfo.categories,
             publishedDate: volumeInfo.publishedDate,
+            isbn: isbn,
+            categories: volumeInfo.categories,
             publisher: volumeInfo.publisher,
-            isbn: isbn
+            language: volumeInfo.language
         )
     }
 }
 
 // API yanıt modelleri
-struct BookSearchResponse: Codable {
+struct BookSearchResponse: Decodable {
     let items: [BookSearchItem]?
     let totalItems: Int?
-    let kind: String?
 }
 
-struct BookSearchItem: Codable {
+struct BookSearchItem: Decodable {
     let id: String?
-    let volumeInfo: BookSearchVolumeInfo?
+    let volumeInfo: SearchVolumeInfo?
 }
 
-struct BookSearchVolumeInfo: Codable {
+struct SearchVolumeInfo: Decodable {
     let title: String?
     let authors: [String]?
     let description: String?
-    let pageCount: Int?
-    let categories: [String]?
-    let imageLinks: BookSearchImageLinks?
     let publishedDate: String?
     let publisher: String?
+    let pageCount: Int?
+    let imageLinks: ImageLinksDTO?
     let language: String?
-    let industryIdentifiers: [BookSearchIdentifier]?
+    let categories: [String]?
+    let industryIdentifiers: [SearchIndustryIdentifier]?
 }
 
-struct BookSearchIdentifier: Codable {
-    let type: String?
-    let identifier: String?
-}
-
-struct BookSearchImageLinks: Codable {
+struct ImageLinksDTO: Decodable {
     let smallThumbnail: String?
     let thumbnail: String?
+}
+
+struct SearchIndustryIdentifier: Decodable {
+    let type: String
+    let identifier: String
 }
 
 struct BookSearchView_Previews: PreviewProvider {

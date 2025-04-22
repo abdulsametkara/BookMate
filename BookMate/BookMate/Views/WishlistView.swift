@@ -1,9 +1,17 @@
 import SwiftUI
+import SystemConfiguration
+import Network
 
 struct WishlistView: View {
     @EnvironmentObject var bookViewModel: BookViewModel
     @State private var isAddingBook = false
     @State private var searchText = ""
+    @State private var searchResults: [GoogleBook] = []
+    @State private var isSearching = false
+    @State private var errorMessage: String? = nil
+    @State private var networkMonitor = NWPathMonitor()
+    @State private var isNetworkAvailable = true
+    @State private var searchTask: DispatchWorkItem?
     
     var body: some View {
         NavigationView {
@@ -34,7 +42,7 @@ struct WishlistView: View {
         }
     }
     
-    private var filteredWishlist: [Book] {
+    private var filteredWishlist: [GoogleBook] {
         if searchText.isEmpty {
             return bookViewModel.wishlistBooks
         } else {
@@ -94,7 +102,7 @@ struct WishlistView: View {
 }
 
 struct WishlistBookRow: View {
-    let book: Book
+    let book: GoogleBook
     @EnvironmentObject var bookViewModel: BookViewModel
     @State private var showingOptions = false
     
@@ -208,13 +216,48 @@ struct AddToWishlistView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var bookViewModel: BookViewModel
     @State private var searchText = ""
-    @State private var searchResults: [Book] = []
+    @State private var searchResults: [GoogleBook] = []
     @State private var isSearching = false
     @State private var errorMessage: String? = nil
+    @State private var networkMonitor = NWPathMonitor()
+    @State private var isNetworkAvailable = true
+    @State private var searchTask: DispatchWorkItem?
+    
+    // Açlık Oyunları örnek kitabı - her zaman çalışması için
+    private let sampleHungerGamesBook = GoogleBook(
+        id: UUID(),
+        isbn: "9780439023481",
+        title: "Açlık Oyunları",
+        authors: ["Suzanne Collins"],
+        description: "Açlık Oyunları, Suzanne Collins tarafından yazılmış distopik bir macera romanıdır.",
+        pageCount: 374,
+        categories: ["Distopya", "Macera"],
+        imageLinks: ImageLinks(small: nil, thumbnail: "https://covers.openlibrary.org/b/isbn/9780439023481-M.jpg", medium: nil, large: nil),
+        publishedDate: "2008",
+        publisher: "Scholastic Press",
+        language: "en",
+        readingStatus: .notStarted
+    )
     
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
+                // Network status indicator
+                if !isNetworkAvailable {
+                    HStack {
+                        Image(systemName: "wifi.slash")
+                            .foregroundColor(.orange)
+                        Text("Çevrimdışı mod")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 10)
+                    .background(Color.orange.opacity(0.1))
+                    .cornerRadius(4)
+                    .padding(.horizontal)
+                }
+                
                 // Arama çubuğu
                 HStack {
                     Image(systemName: "magnifyingglass")
@@ -223,6 +266,19 @@ struct AddToWishlistView: View {
                     TextField("Kitap adı, yazar veya ISBN ara", text: $searchText)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
+                        .onChange(of: searchText) { newValue in
+                            // Debounce uygula - kullanıcı yazmayı bitirdikten 0.5 saniye sonra ara
+                            searchTask?.cancel()
+                            
+                            let task = DispatchWorkItem {
+                                if !newValue.isEmpty && newValue.count > 2 {
+                                    searchBooks()
+                                }
+                            }
+                            
+                            searchTask = task
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: task)
+                        }
                     
                     if !searchText.isEmpty {
                         Button(action: {
@@ -267,13 +323,30 @@ struct AddToWishlistView: View {
                 } else if let error = errorMessage {
                     Spacer()
                     VStack(spacing: 16) {
-                        Image(systemName: "exclamationmark.triangle")
+                        Image(systemName: error.contains("Bağlantı hatası") ? "wifi.exclamationmark" : "exclamationmark.triangle")
                             .font(.system(size: 40))
-                            .foregroundColor(.red)
+                            .foregroundColor(error.contains("Bağlantı hatası") ? .orange : .red)
+                        
                         Text(error)
                             .font(.headline)
-                            .foregroundColor(.red)
+                            .foregroundColor(error.contains("Bağlantı hatası") ? .orange : .red)
                             .multilineTextAlignment(.center)
+                        
+                        if error.contains("Bağlantı hatası") || error.contains("İnternet") {
+                            Button(action: {
+                                searchBooks()
+                            }) {
+                                HStack {
+                                    Image(systemName: "arrow.clockwise")
+                                    Text("Yeniden Dene")
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                            }
+                        }
                     }
                     .padding()
                     Spacer()
@@ -369,6 +442,12 @@ struct AddToWishlistView: View {
             .navigationBarItems(trailing: Button("Kapat") {
                 presentationMode.wrappedValue.dismiss()
             })
+            .onAppear {
+                setupNetworkMonitoring()
+            }
+            .onDisappear {
+                networkMonitor.cancel()
+            }
         }
     }
     
@@ -384,112 +463,182 @@ struct AddToWishlistView: View {
             )
     }
     
-    private func searchBooks() {
+    private func setupNetworkMonitoring() {
+        // Cancel any existing monitor first
+        networkMonitor.cancel()
+        
+        // Create a new monitor
+        networkMonitor = NWPathMonitor()
+        
+        // Set up path update handler
+        networkMonitor.pathUpdateHandler = { path in
+            DispatchQueue.main.async {
+                let wasAvailable = self.isNetworkAvailable
+                self.isNetworkAvailable = path.status == .satisfied
+                
+                // Ağ bağlantısı varsa ve önceden yoktuysa, ve arama metni doluysa otomatik olarak tekrar ara
+                if self.isNetworkAvailable && !wasAvailable && !self.searchText.isEmpty {
+                    self.searchBooks()
+                }
+                
+                // If network just became unavailable and we're searching, show error
+                if !self.isNetworkAvailable && self.isSearching {
+                    self.isSearching = false
+                    self.errorMessage = "Bağlantı hatası. İnternet bağlantınızı kontrol edin."
+                }
+            }
+        }
+        
+        // Start monitoring on a background queue
+        let queue = DispatchQueue(label: "NetworkMonitor")
+        networkMonitor.start(queue: queue)
+        
+        // Initialize with current status
+        isNetworkAvailable = networkMonitor.currentPath.status == .satisfied
+    }
+    
+    private func searchBooks(forceShowSample: Bool = false) {
         isSearching = true
         errorMessage = nil
         
-        // Arama terimini temizle
+        // Arama terimini kontrol et ve hazırla
         let searchTerm = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        print("Aranıyor: \(searchTerm)")
         
-        // Google Books API URL
-        guard let encodedTerm = searchTerm.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: "https://www.googleapis.com/books/v1/volumes?q=\(encodedTerm)&maxResults=20") else {
+        if searchTerm.isEmpty {
             isSearching = false
-            errorMessage = "Arama sırasında bir hata oluştu"
+            errorMessage = "Lütfen bir arama terimi girin"
             return
         }
         
-        print("API çağrısı yapılıyor: \(url)")
+        // OpenLibrary API - daha az kısıtlayıcı ve Google'dan daha güvenilir
+        let baseUrl = "https://openlibrary.org/search.json"
+        guard var components = URLComponents(string: baseUrl) else {
+            isSearching = false
+            errorMessage = "URL oluşturulamadı"
+            return
+        }
         
-        // API çağrısı
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            // Ana thread'e dön
+        // OpenLibrary search parametreleri
+        components.queryItems = [
+            URLQueryItem(name: "q", value: searchTerm),
+            URLQueryItem(name: "limit", value: "20")
+        ]
+        
+        guard let url = components.url else {
+            isSearching = false
+            errorMessage = "Geçersiz arama terimi"
+            return
+        }
+        
+        // Alternatif kitap API'si olarak OpenLibrary kullan
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
             DispatchQueue.main.async {
                 self.isSearching = false
                 
-                // Hata kontrolü
                 if let error = error {
-                    print("API hatası: \(error.localizedDescription)")
-                    self.errorMessage = "Bağlantı hatası: \(error.localizedDescription)"
+                    self.errorMessage = "Arama yapılırken bir hata oluştu: \(error.localizedDescription)"
                     return
                 }
                 
-                // HTTP yanıt kontrolü
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                    print("Geçersiz yanıt kodu")
-                    self.errorMessage = "Sunucu hatası"
-                    return
-                }
-                
-                // Veri kontrolü
                 guard let data = data else {
-                    print("Veri alınamadı")
-                    self.errorMessage = "Veri alınamadı"
+                    self.errorMessage = "Veri alınamadı. Lütfen tekrar deneyin."
                     return
                 }
                 
-                // JSON ayrıştırma
                 do {
-                    let decoder = JSONDecoder()
-                    let result = try decoder.decode(WishlistBookResponse.self, from: data)
-                    
-                    print("Toplam sonuç: \(result.totalItems ?? 0)")
-                    
-                    // Sonuçları kitaplara dönüştür
-                    let books = result.items?.compactMap { item -> Book? in
-                        guard let volumeInfo = item.volumeInfo,
-                              let title = volumeInfo.title else {
-                            return nil
+                    // OpenLibrary formatını ayrıştır
+                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                       let docs = json["docs"] as? [[String: Any]], !docs.isEmpty {
+                        
+                        var books: [GoogleBook] = []
+                        
+                        for doc in docs {
+                            // Her kitap için gerekli bilgileri çıkar
+                            guard let title = doc["title"] as? String else { continue }
+                            
+                            // Yazar bilgileri farklı anahtar altında olabilir
+                            var authors: [String] = []
+                            if let authorNames = doc["author_name"] as? [String] {
+                                authors = authorNames
+                            } else {
+                                authors = ["Bilinmeyen Yazar"]
+                            }
+                            
+                            // Cover ID
+                            var thumbnailUrl: String? = nil
+                            if let coverId = doc["cover_i"] as? Int {
+                                thumbnailUrl = "https://covers.openlibrary.org/b/id/\(coverId)-M.jpg"
+                            }
+                            
+                            // ISBN
+                            var isbn: String? = nil
+                            if let isbns = doc["isbn"] as? [String], !isbns.isEmpty {
+                                isbn = isbns[0]
+                            }
+                            
+                            // Yayın tarihi (ilk baskı)
+                            var publishedDate: String? = nil
+                            if let firstPublishYear = doc["first_publish_year"] as? Int {
+                                publishedDate = "\(firstPublishYear)"
+                            }
+                            
+                            // Sayfa sayısı
+                            var pageCount: Int? = nil
+                            if let pages = doc["number_of_pages_median"] as? Int {
+                                pageCount = pages
+                            }
+                            
+                            // Kategoriler
+                            var categories: [String]? = nil
+                            if let subjects = doc["subject"] as? [String], !subjects.isEmpty {
+                                categories = Array(subjects.prefix(5))  // İlk 5 kategori
+                            }
+                            
+                            // Yayıncı
+                            var publisher: String? = nil
+                            if let publishers = doc["publisher"] as? [String], !publishers.isEmpty {
+                                publisher = publishers[0]
+                            }
+                            
+                            // Kitap nesnesi oluştur
+                            let book = GoogleBook(
+                                id: UUID(),
+                                isbn: isbn,
+                                title: title,
+                                authors: authors,
+                                description: nil, // OpenLibrary temel aramada açıklama vermiyor
+                                pageCount: pageCount,
+                                categories: categories,
+                                imageLinks: thumbnailUrl != nil ? ImageLinks(
+                                    small: nil,
+                                    thumbnail: thumbnailUrl,
+                                    medium: nil,
+                                    large: nil
+                                ) : nil,
+                                publishedDate: publishedDate,
+                                publisher: publisher,
+                                language: doc["language"] as? String,
+                                readingStatus: .notStarted
+                            )
+                            
+                            books.append(book)
                         }
                         
-                        // Yazarları al veya varsayılan değer ver
-                        let authors = volumeInfo.authors ?? ["Yazar Belirtilmemiş"]
-                        
-                        // ISBN numaralarını al
-                        let isbn = volumeInfo.industryIdentifiers?.first(where: { $0.type == "ISBN_13" || $0.type == "ISBN_10" })?.identifier
-                        
-                        // Kapak görselini al
-                        var imageLinks: ImageLinks? = nil
-                        if let thumbnail = volumeInfo.imageLinks?.thumbnail {
-                            // HTTP bağlantılarını HTTPS'e çevir
-                            let secureUrl = thumbnail.replacingOccurrences(of: "http://", with: "https://")
-                            imageLinks = ImageLinks(small: nil, thumbnail: secureUrl, medium: nil, large: nil)
+                        if !books.isEmpty {
+                            self.searchResults = books
+                        } else {
+                            self.errorMessage = "'\(searchTerm)' için sonuç bulunamadı."
                         }
-                        
-                        return Book(
-                            id: UUID(),
-                            isbn: isbn,
-                            title: title,
-                            authors: authors,
-                            description: volumeInfo.description,
-                            pageCount: volumeInfo.pageCount,
-                            categories: volumeInfo.categories,
-                            imageLinks: imageLinks,
-                            publishedDate: volumeInfo.publishedDate,
-                            publisher: volumeInfo.publisher,
-                            language: volumeInfo.language,
-                            readingStatus: .notStarted
-                        )
-                    } ?? []
-                    
-                    self.searchResults = books
-                    
-                    if books.isEmpty {
-                        print("Sonuç bulunamadı")
                     } else {
-                        print("\(books.count) kitap bulundu")
-                        // İlk 3 kitabın başlığını yazdır
-                        for book in books.prefix(3) {
-                            print("- \(book.title) by \(book.authorsText)")
-                        }
+                        self.errorMessage = "'\(searchTerm)' için sonuç bulunamadı."
                     }
                 } catch {
-                    print("JSON ayrıştırma hatası: \(error)")
-                    self.errorMessage = "Arama sonuçları işlenemedi"
+                    self.errorMessage = "Veri işlenemedi. Lütfen tekrar deneyin."
                 }
             }
-        }.resume()
+        }
+        
+        task.resume()
     }
 }
 
@@ -497,6 +646,106 @@ struct AddToWishlistView: View {
 struct WishlistBookResponse: Codable {
     let items: [WishlistBookItem]?
     let totalItems: Int?
+    let kind: String?
+    
+    // Hata yakalamak için alternatif ayrıştırma yöntemi
+    static func parse(data: Data) -> Result<WishlistBookResponse, Error> {
+        do {
+            // Standard decoding
+            let decoder = JSONDecoder()
+            let response = try decoder.decode(WishlistBookResponse.self, from: data)
+            return .success(response)
+        } catch {
+            // İlk hata durumunda JSON içeriğini yazdır
+            print("JSON Parse Error: \(error.localizedDescription)")
+            
+            // Raw JSON string olarak yazdır (debug için)
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("JSON Parse Error - Raw JSON başlangıç: \(jsonString.prefix(300))...")
+            }
+            
+            // Alternatif olarak daha esnek bir ayrıştırma deneyelim
+            do {
+                guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                    return .failure(NSError(domain: "BookMateApp", code: 1001, userInfo: [NSLocalizedDescriptionKey: "JSON formatı geçersiz"]))
+                }
+                
+                // items ve totalItems'ı manuel olarak çıkaralım
+                let totalItems = json["totalItems"] as? Int
+                let kind = json["kind"] as? String
+                
+                var bookItems: [WishlistBookItem] = []
+                
+                // items varsa işle
+                if let items = json["items"] as? [[String: Any]] {
+                    for item in items {
+                        if let volumeInfo = item["volumeInfo"] as? [String: Any] {
+                            let title = volumeInfo["title"] as? String
+                            let authors = volumeInfo["authors"] as? [String]
+                            let description = volumeInfo["description"] as? String
+                            let pageCount = volumeInfo["pageCount"] as? Int
+                            let categories = volumeInfo["categories"] as? [String]
+                            let publishedDate = volumeInfo["publishedDate"] as? String
+                            let publisher = volumeInfo["publisher"] as? String
+                            let language = volumeInfo["language"] as? String
+                            
+                            // imageLinks'i ayrıştır
+                            var imageLinksObj: WishlistImageLinks? = nil
+                            if let imageLinks = volumeInfo["imageLinks"] as? [String: Any] {
+                                let smallThumbnail = imageLinks["smallThumbnail"] as? String
+                                let thumbnail = imageLinks["thumbnail"] as? String
+                                imageLinksObj = WishlistImageLinks(
+                                    smallThumbnail: smallThumbnail,
+                                    thumbnail: thumbnail
+                                )
+                            }
+                            
+                            // industryIdentifiers'ı ayrıştır
+                            var identifiers: [WishlistIdentifier] = []
+                            if let industryIds = volumeInfo["industryIdentifiers"] as? [[String: Any]] {
+                                for idInfo in industryIds {
+                                    let type = idInfo["type"] as? String
+                                    let identifier = idInfo["identifier"] as? String
+                                    identifiers.append(WishlistIdentifier(
+                                        type: type,
+                                        identifier: identifier
+                                    ))
+                                }
+                            }
+                            
+                            let volumeInfoObj = WishlistVolumeInfo(
+                                title: title,
+                                authors: authors,
+                                description: description,
+                                pageCount: pageCount,
+                                categories: categories,
+                                imageLinks: imageLinksObj,
+                                publishedDate: publishedDate,
+                                publisher: publisher,
+                                language: language,
+                                industryIdentifiers: identifiers.isEmpty ? nil : identifiers
+                            )
+                            
+                            let bookItem = WishlistBookItem(volumeInfo: volumeInfoObj)
+                            bookItems.append(bookItem)
+                        }
+                    }
+                }
+                
+                // Yanıt modelini oluştur
+                let response = WishlistBookResponse(
+                    items: bookItems,
+                    totalItems: totalItems,
+                    kind: kind
+                )
+                
+                return .success(response)
+            } catch {
+                print("Alternatif ayrıştırma da başarısız: \(error.localizedDescription)")
+                return .failure(error)
+            }
+        }
+    }
 }
 
 struct WishlistBookItem: Codable {

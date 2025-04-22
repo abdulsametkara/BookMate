@@ -4,7 +4,7 @@ struct BookshelfView: View {
     @EnvironmentObject var bookViewModel: BookViewModel
     @Environment(\.colorScheme) var colorScheme
     
-    @State private var selectedBook: Book? = nil
+    @State private var selectedBook: GoogleBook? = nil
     @State private var showDetail = false
     
     var body: some View {
@@ -130,12 +130,22 @@ struct BookshelfView: View {
     // Modern kitaplık rafı
     private func modernBookshelfView(shelfIndex: Int) -> some View {
         let startIndex = shelfIndex * 5 // Her rafta 5 kitap
-        let endIndex = min(startIndex + 5, bookViewModel.userLibrary.count)
         
         // Bu raf için kitaplar
-        let shelfBooks: [Book] = {
+        let shelfBooks: [GoogleBook] = {
             guard startIndex < bookViewModel.userLibrary.count else { return [] }
-            return Array(bookViewModel.userLibrary[startIndex..<endIndex])
+            
+            var books: [GoogleBook] = []
+            
+            // startIndex'ten başlayarak en fazla 5 kitap al (veya mevcut kitap sayısı kadar)
+            for i in 0..<5 { // Sabit sayı kullanarak hatayı giderelim
+                if startIndex + i < bookViewModel.userLibrary.count {
+                    books.append(bookViewModel.userLibrary[startIndex + i])
+                } else {
+                    break // Yeterli kitap yoksa döngüden çık
+                }
+            }
+            return books
         }()
         
         return ZStack {
@@ -156,7 +166,7 @@ struct BookshelfView: View {
             
             // Kitaplar
             HStack(alignment: .bottom, spacing: 15) {
-                ForEach(shelfBooks.indices, id: \.self) { index in
+                ForEach(0..<shelfBooks.count, id: \.self) { index in
                     let book = shelfBooks[index]
                     ModernBookView(
                         title: book.title,
@@ -206,7 +216,7 @@ struct BookshelfView: View {
     }
     
     // Kitap rengi belirleme - variation parametresiyle aynı türdeki kitapların renkleri farklılaştırılıyor
-    private func getBookColor(for book: Book, variation: Int) -> UIColor {
+    private func getBookColor(for book: GoogleBook, variation: Int) -> UIColor {
         // Kitap türüne veya ID'sine göre tutarlı bir renk üret
         let colors: [UIColor] = [
             UIColor(red: 0.8, green: 0.2, blue: 0.2, alpha: 1.0), // Kırmızı
@@ -287,7 +297,7 @@ struct ModernBookView: View {
 
 // Kitap Detay Görünümü
 struct BookshelfItemDetailView: View {
-    let book: Book
+    let book: GoogleBook
     @Binding var isShowing: Bool
     @Environment(\.colorScheme) var colorScheme
     
@@ -520,7 +530,7 @@ struct BookshelfItemDetailView: View {
     }
     
     // Kitap rengi belirleme
-    private func getBookColor(for book: Book) -> UIColor {
+    private func getBookColor(for book: GoogleBook) -> UIColor {
         // Kitap türüne veya ID'sine göre tutarlı bir renk üret
         let colors: [UIColor] = [
             UIColor(red: 0.8, green: 0.2, blue: 0.2, alpha: 1.0), // Kırmızı
@@ -540,7 +550,7 @@ struct BookshelfItemDetailView: View {
     }
     
     // İlerleme hesaplama
-    private func calculateBookProgress(_ book: Book) -> (progress: Double, percentage: Int) {
+    private func calculateBookProgress(_ book: GoogleBook) -> (progress: Double, percentage: Int) {
         let currentPage = book.currentPage ?? 0
         let pageCount = book.pageCount ?? 1
         

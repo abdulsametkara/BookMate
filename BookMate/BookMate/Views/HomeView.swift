@@ -121,7 +121,7 @@ struct HomeView: View {
     }
     
     // Şu an okunan kitap kartı
-    private func currentlyReadingCard(_ book: Book) -> some View {
+    private func currentlyReadingCard(_ book: GoogleBook) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             // Kitap kapağı ve ilerleme çubuğu
             ZStack(alignment: .bottom) {
@@ -217,7 +217,7 @@ struct HomeView: View {
     }
     
     // Son eklenen kitap kartı
-    private func recentBookCard(_ book: Book) -> some View {
+    private func recentBookCard(_ book: GoogleBook) -> some View {
         HStack(spacing: 15) {
             // Kitap kapağı
             bookCoverView(for: book)
@@ -238,7 +238,7 @@ struct HomeView: View {
                     .lineLimit(1)
                 
                 HStack {
-                    Text(book.readingStatus.description)
+                    Text(book.readingStatus.displayName)
                         .font(.caption)
                         .foregroundColor(book.readingStatus == .inProgress ? secondaryColor : .secondary)
                     
@@ -248,163 +248,132 @@ struct HomeView: View {
         }
         .padding(12)
         .frame(width: 270, height: 120, alignment: .leading)
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-    }
-    
-    // Kitap kapağı görünümü
-    private func bookCoverView(for book: Book) -> some View {
-        Group {
-            if let imageUrl = book.thumbnailURL {
-                AsyncImage(url: imageUrl) { phase in
-                    switch phase {
-                    case .empty:
-                        bookPlaceholder(for: book)
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    case .failure:
-                        bookPlaceholder(for: book)
-                    @unknown default:
-                        bookPlaceholder(for: book)
-                    }
-                }
-            } else {
-                bookPlaceholder(for: book)
-            }
-        }
-    }
-    
-    // Kapak resmi olmadığında placeholder
-    private func bookPlaceholder(for book: Book) -> some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [primaryColor.opacity(0.8), primaryColor]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            
-            VStack(spacing: 8) {
-                Image(systemName: "book.closed")
-                    .font(.system(size: 30))
-                    .foregroundColor(.white.opacity(0.8))
-                
-                Text(book.title)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 8)
-                    .lineLimit(3)
-            }
-            .padding(8)
-        }
-    }
-    
-    // Henüz kitap okunmadığında gösterilecek durum
-    private var emptyReadingState: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "book.closed")
-                .font(.system(size: 50))
-                .foregroundColor(primaryColor.opacity(0.6))
-            
-            Text("Şu an okumakta olduğunuz kitap yok")
-                .font(.headline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-            
-            Button(action: {
-                // Kitap ekleme işlemi
-            }) {
-                Text("Kitap Ekle")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 12)
-                    .background(primaryColor)
-                    .cornerRadius(30)
-                    .shadow(color: primaryColor.opacity(0.4), radius: 5, x: 0, y: 3)
-            }
-        }
-        .padding(30)
-        .frame(maxWidth: .infinity)
-        .background(Color.white)
-        .cornerRadius(24)
-        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
-        .padding(.horizontal, 20)
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
     }
     
     // İstatistikler bölümü
     private var statisticsSection: some View {
-        VStack(spacing: 10) {
-            Text("Okuma İstatistikleri")
+        VStack(alignment: .leading, spacing: 15) {
+            Text("İstatistikler")
                 .font(.title3)
                 .fontWeight(.bold)
                 .padding(.horizontal, 20)
-                .padding(.top, 10)
             
-            // İstatistik kartları
-            HStack(spacing: 15) {
-                // Toplam kitap
-                NavigationLink(destination: LibraryView()) {
-                    statCard(
-                        title: "Toplam Kitap",
-                        value: "\(bookViewModel.allBooks.count)",
-                        icon: "books.vertical",
-                        color: primaryColor
-                    )
-                }
-                .buttonStyle(PlainButtonStyle())
+            HStack(spacing: 16) {
+                // Tamamlanan kitaplar
+                statsCard(
+                    count: bookViewModel.completedBooks.count,
+                    title: "Bitirilen Kitap",
+                    icon: "checkmark.circle.fill",
+                    color: .green
+                )
                 
-                // Tamamlanan kitap
-                NavigationLink(destination: CompletedBooksView()) {
-                    statCard(
-                        title: "Tamamlanan",
-                        value: "\(bookViewModel.completedBooks.count)",
-                        icon: "checkmark.circle",
-                        color: .green
-                    )
-                }
-                .buttonStyle(PlainButtonStyle())
+                // Toplam kitaplar
+                statsCard(
+                    count: bookViewModel.userLibrary.count,
+                    title: "Toplam Kitap",
+                    icon: "books.vertical.fill",
+                    color: primaryColor
+                )
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 20)
         }
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        .padding(.horizontal, 20)
     }
     
     // İstatistik kartı
-    private func statCard(title: String, value: String, icon: String, color: Color) -> some View {
-        HStack(spacing: 15) {
-            // İkon
-            Image(systemName: icon)
-                .font(.system(size: 30))
-                .foregroundColor(color)
-                .frame(width: 50, height: 50)
-                .background(color.opacity(0.1))
-                .clipShape(Circle())
-            
-            VStack(alignment: .leading, spacing: 5) {
+    private func statsCard(count: Int, title: String, icon: String, color: Color) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(count)")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.primary)
+                
                 Text(title)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                
-                Text(value)
-                    .font(.title2)
-                    .fontWeight(.bold)
+            }
+            
+            Spacer()
+            
+            Image(systemName: icon)
+                .font(.system(size: 32))
+                .foregroundColor(color)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+    }
+    
+    // Boş okuma durumu
+    private var emptyReadingState: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "book")
+                .font(.system(size: 32))
+                .foregroundColor(.secondary)
+            
+            Text("Şu an okuduğunuz bir kitap yok")
+                .font(.headline)
+                .multilineTextAlignment(.center)
+            
+            Text("Bir kitabı okumaya başlamak için kütüphanenize gidin ve 'Şu An Okuyorum' olarak işaretleyin")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            
+            NavigationLink(destination: BookListView()) {
+                Text("Kütüphaneye Git")
+                    .font(.headline)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 8)
+                    .background(primaryColor)
+                    .foregroundColor(.white)
+                    .cornerRadius(20)
+                    .padding(.top, 8)
             }
         }
-        .padding(15)
-        .frame(height: 80)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white)
+        .padding(24)
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemBackground))
         .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(.horizontal, 20)
+    }
+    
+    // Kitap kapağı görünümü
+    private func bookCoverView(for book: GoogleBook) -> some View {
+        Group {
+            if let thumbnailURL = book.thumbnailURL {
+                AsyncImage(url: thumbnailURL) { phase in
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else if phase.error != nil {
+                        bookCoverPlaceholder
+                    } else {
+                        bookCoverPlaceholder
+                            .overlay(ProgressView())
+                    }
+                }
+            } else {
+                bookCoverPlaceholder
+            }
+        }
+    }
+    
+    // Kitap kapağı placeholder
+    private var bookCoverPlaceholder: some View {
+        Rectangle()
+            .fill(Color(.systemGray5))
+            .overlay(
+                Image(systemName: "book.closed")
+                    .font(.system(size: 30))
+                    .foregroundColor(.gray)
+            )
     }
 }
 
@@ -426,20 +395,6 @@ struct RoundedCorner: Shape {
             cornerRadii: CGSize(width: radius, height: radius)
         )
         return Path(path.cgPath)
-    }
-}
-
-// ReadingStatus için açıklama
-extension ReadingStatus {
-    var description: String {
-        switch self {
-        case .notStarted:
-            return "Henüz Başlanmadı"
-        case .inProgress:
-            return "Okunuyor"
-        case .finished:
-            return "Tamamlandı"
-        }
     }
 }
 

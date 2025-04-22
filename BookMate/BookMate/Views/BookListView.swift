@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct BookListView: View {
-    @State private var books: [Book] = []
+    @State private var books: [GoogleBook] = []
     @State private var searchText = ""
     @State private var isSearchActive = false
     @State private var showingAddBookSheet = false
@@ -15,7 +15,7 @@ struct BookListView: View {
     }
     
     // HomeView'dan çağrıldığında kullanılan yapılandırıcı
-    init(books: [Book], title: String, bookViewModel: BookViewModel) {
+    init(books: [GoogleBook], title: String, bookViewModel: BookViewModel) {
         self._books = State(initialValue: books)
         self.viewTitle = title
         self.bookViewModel = bookViewModel
@@ -39,7 +39,7 @@ struct BookListView: View {
         }
     }
     
-    private var filteredBooks: [Book] {
+    private var filteredBooks: [GoogleBook] {
         var result = books
         
         // Okuma durumu filtreleme
@@ -172,7 +172,7 @@ struct BookListView: View {
 
 // Kitap satır görünümü
 struct BookRow: View {
-    let book: Book
+    let book: GoogleBook
     
     var body: some View {
         HStack(spacing: 15) {
@@ -278,8 +278,8 @@ struct FilterChip: View {
 
 // Test verileri
 extension BookListView {
-    static var testBooks: [Book] = [
-        Book(
+    static var testBooks: [GoogleBook] = [
+        GoogleBook(
             id: UUID(),
             isbn: "9780307474278",
             title: "Dune",
@@ -300,7 +300,7 @@ extension BookListView {
             readingProgressPercentage: 35,
             userNotes: "Çok etkileyici bir bilim kurgu kitabı. Siyasi entrikalar ve karakter gelişimleri çok iyi işlenmiş."
         ),
-        Book(
+        GoogleBook(
             id: UUID(),
             isbn: "9780553593716",
             title: "A Game of Thrones",
@@ -321,7 +321,7 @@ extension BookListView {
             readingProgressPercentage: 0,
             userNotes: nil
         ),
-        Book(
+        GoogleBook(
             id: UUID(),
             isbn: "9780747532743",
             title: "Harry Potter and the Philosopher's Stone",
@@ -355,7 +355,7 @@ struct BookListView_Previews: PreviewProvider {
 // Yardımcı bileşenler için yer tutucu
 struct AddBookView: View {
     @Environment(\.dismiss) private var dismiss
-    let onAddBook: (Book) -> Void
+    let onAddBook: (GoogleBook) -> Void
     
     // Gerçek uygulamada, kitap arama ve ekleme için bu görünümü geliştirmek gerekecek
     // Bu sadece yapı için şimdilik yer tutucu

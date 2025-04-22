@@ -10,6 +10,8 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var bookViewModel = BookViewModel()
     @StateObject var userViewModel = BookMate.UserViewModel()
+    @StateObject var readingTimerViewModel = ReadingTimerViewModel()
+    @StateObject var libraryViewModel = LibraryViewModel()
     @State var selectedTab: Int = 0
     
     var body: some View {
@@ -26,20 +28,30 @@ struct ContentView: View {
                 }
                 .tag(1)
             
+            ReadingTimerView()
+                .tabItem {
+                    Label("Zamanlayıcı", systemImage: "timer")
+                }
+                .tag(2)
+                .environmentObject(bookViewModel)
+                .environmentObject(libraryViewModel)
+            
             WishlistView()
                 .tabItem {
                     Label("İstek Listem", systemImage: "heart.fill")
                 }
-                .tag(2)
+                .tag(3)
             
             ProfileView()
                 .tabItem {
                     Label("Profil", systemImage: "person.fill")
                 }
-                .tag(3)
+                .tag(4)
         }
         .environmentObject(bookViewModel)
         .environmentObject(userViewModel)
+        .environmentObject(readingTimerViewModel)
+        .environmentObject(libraryViewModel)
     }
 }
 

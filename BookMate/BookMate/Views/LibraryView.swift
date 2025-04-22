@@ -64,7 +64,7 @@ struct LibraryView: View {
 }
 
 struct LibraryBookItem: View {
-    let book: Book
+    let book: GoogleBook
     @EnvironmentObject var bookViewModel: BookViewModel
     
     var body: some View {
@@ -148,7 +148,7 @@ struct LibraryBookItem: View {
     }
     
     // İyileştirilmiş kitap kapağı görünümü
-    private func bookCoverView(for book: Book) -> some View {
+    private func bookCoverView(for book: GoogleBook) -> some View {
         Group {
             if let url = book.thumbnailURL {
                 AsyncImage(url: url) { phase in
@@ -249,36 +249,46 @@ struct CompletedBooksView: View {
                                 .foregroundColor(.secondary)
                                 .lineLimit(1)
                             
-                            // Tamamlanma bilgisi
                             if let finishedDate = book.finishedReading {
-                                Text("Tamamlandı: \(formatDate(finishedDate))")
+                                Text("Tamamlandı: \(dateFormatter.string(from: finishedDate))")
                                     .font(.caption)
-                                    .foregroundColor(.green)
+                                    .foregroundColor(.secondary)
                             }
                         }
                     }
                 }
             }
         }
-        .navigationBarTitle("Okuduğum Kitaplar", displayMode: .inline)
+        .navigationTitle("Tamamlanan Kitaplar")
     }
     
-    private func bookCoverPlaceholder(for book: Book) -> some View {
+    // Tamamlanma tarihi için formatter
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }
+    
+    // Kitap kapağı placeholder
+    private func bookCoverPlaceholder(for book: GoogleBook) -> some View {
         RoundedRectangle(cornerRadius: 8)
             .fill(Color.gray.opacity(0.3))
             .frame(width: 60, height: 90)
             .overlay(
-                Image(systemName: "book.closed")
-                    .foregroundColor(.gray)
+                VStack(spacing: 4) {
+                    Image(systemName: "book.closed")
+                        .font(.system(size: 20))
+                        .foregroundColor(.gray)
+                    
+                    Text(book.title)
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 4)
+                }
             )
-    }
-    
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        formatter.locale = Locale(identifier: "tr_TR")
-        return formatter.string(from: date)
     }
 }
 

@@ -339,4 +339,134 @@ class FirebaseService {
         let storageRef = storage.reference().child("users/\(userId)/books/\(bookId)/cover.jpg")
         try await storageRef.delete()
     }
+    
+    // MARK: - Reading Sessions
+    
+    func saveReadingSession(_ session: ReadingSession) {
+        // Kullanıcının oturum açmış olduğunu kontrol et
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("Okuma oturumu kaydedilemedi: Kullanıcı oturum açmamış")
+            return
+        }
+        
+        // Kullanıcı referansını ve eşleştirilmiş partneri al
+        let userRef = db.collection("users").document(userId)
+        
+        // Kullanıcının okuma oturumlarını kaydet
+        let sessionRef = userRef.collection("readingSessions").document(session.id)
+        sessionRef.setData(session.asDictionary) { error in
+            if let error = error {
+                print("Okuma oturumu Firebase'e kaydedilemedi: \(error.localizedDescription)")
+            } else {
+                print("Okuma oturumu Firebase'e kaydedildi: \(session.id)")
+                
+                // Eş ile paylaşım için partner ID'yi al
+                userRef.getDocument { snapshot, error in
+                    if let error = error {
+                        print("Partner bilgisi alınamadı: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let data = snapshot?.data(),
+                          let partnerId = data["partnerId"] as? String,
+                          !partnerId.isEmpty else {
+                        print("Partner bulunamadı veya eşleştirilmemiş")
+                        return
+                    }
+                    
+                    // Partner aktivite akışına ekle
+                    let partnerRef = self.db.collection("users").document(partnerId)
+                    let activityData: [String: Any] = [
+                        "type": "readingSession",
+                        "userId": userId,
+                        "bookId": session.bookId,
+                        "duration": session.duration,
+                        "timestamp": Timestamp(date: Date())
+                    ]
+                    
+                    partnerRef.collection("activities").document(UUID().uuidString).setData(activityData) { error in
+                        if let error = error {
+                            print("Partner aktivite akışına eklenemedi: \(error.localizedDescription)")
+                        } else {
+                            print("Okuma oturumu partner aktivite akışına eklendi")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func getReadingSessions(completion: @escaping ([ReadingSession]) -> Void) {
+        // Kullanıcının oturum açmış olduğunu kontrol et
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("Okuma oturumları getirilemedi: Kullanıcı oturum açmamış")
+            completion([])
+            return
+        }
+        
+        // Kullanıcının okuma oturumlarını getir
+        let sessionsRef = db.collection("users").document(userId).collection("readingSessions")
+        
+        sessionsRef.getDocuments { snapshot, error in
+            if let error = error {
+                print("Okuma oturumları Firebase'den getirilemedi: \(error.localizedDescription)")
+                completion([])
+                return
+            }
+            
+            guard let documents = snapshot?.documents else {
+                completion([])
+                return
+            }
+            
+            let sessions = documents.compactMap { document -> ReadingSession? in
+                let data = document.data()
+                
+                guard let id = data["id"] as? String,
+                      let bookId = data["bookId"] as? String,
+                      let startTimeTimestamp = data["startTime"] as? Timestamp,
+                      let duration = data["duration"] as? Int else {
+                    return nil
+                }
+                
+                let startTime = startTimeTimestamp.dateValue()
+                var endTime: Date? = nil
+                
+                if let endTimeTimestamp = data["endTime"] as? Timestamp {
+                    endTime = endTimeTimestamp.dateValue()
+                }
+                
+                return ReadingSession(
+                    id: id,
+                    bookId: bookId,
+                    startTime: startTime,
+                    endTime: endTime,
+                    duration: duration
+                )
+            }
+            
+            completion(sessions)
+        }
+    }
+    
+    func updateBookProgress(bookId: String, progress: Double) {
+        // Kullanıcının oturum açmış olduğunu kontrol et
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("Kitap ilerleme durumu güncellenemedi: Kullanıcı oturum açmamış")
+            return
+        }
+        
+        // Kitabın ilerleme durumunu güncelle
+        let bookRef = db.collection("users").document(userId).collection("books").document(bookId)
+        
+        bookRef.updateData([
+            "progress": progress
+        ]) { error in
+            if let error = error {
+                print("Kitap ilerleme durumu Firebase'de güncellenemedi: \(error.localizedDescription)")
+            } else {
+                print("Kitap ilerleme durumu Firebase'de güncellendi: \(bookId)")
+            }
+        }
+    }
 } 

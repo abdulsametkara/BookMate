@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct NewBookDetailView: View {
-    let book: Book
+    let book: GoogleBook
     @State private var isEditingNotes = false
     @State private var userNotes: String
     @State private var readingStatus: ReadingStatus
@@ -10,11 +10,11 @@ struct NewBookDetailView: View {
     @State private var showingAlert = false
     
     // Kitabın güncel referansını almak için hesaplanmış özellik
-    private var currentBook: Book? {
+    private var currentBook: GoogleBook? {
         bookViewModel.userLibrary.first(where: { $0.id == book.id })
     }
     
-    init(book: Book) {
+    init(book: GoogleBook) {
         self.book = book
         self._userNotes = State(initialValue: book.userNotes ?? "")
         self._readingStatus = State(initialValue: book.readingStatus)
@@ -326,7 +326,7 @@ struct NewBookDetailView: View {
 
 #Preview {
     NavigationView {
-        NewBookDetailView(book: Book(
+        NewBookDetailView(book: GoogleBook(
             id: UUID(),
             isbn: "9780553380958",
             title: "Fareler ve İnsanlar",

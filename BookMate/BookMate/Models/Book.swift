@@ -35,7 +35,7 @@ struct ImageLinks: Codable, Equatable {
     let large: String?
 }
 
-struct Book: Identifiable, Codable, Equatable {
+struct GoogleBook: Identifiable, Codable, Equatable {
     var id: UUID
     let isbn: String?
     let title: String
@@ -79,13 +79,13 @@ struct Book: Identifiable, Codable, Equatable {
     }
     
     // Eşitlik kontrolü
-    static func == (lhs: Book, rhs: Book) -> Bool {
+    static func == (lhs: GoogleBook, rhs: GoogleBook) -> Bool {
         lhs.id == rhs.id
     }
     
     // Örnek kitaplar
-    static var samples: [Book] = [
-        Book(
+    static var samples: [GoogleBook] = [
+        GoogleBook(
             id: UUID(),
             isbn: "9780060935467",
             title: "To Kill a Mockingbird",
@@ -107,7 +107,7 @@ struct Book: Identifiable, Codable, Equatable {
             currentPage: 150,
             lastReadAt: Date().addingTimeInterval(-24*60*60) // dün
         ),
-        Book(
+        GoogleBook(
             id: UUID(),
             isbn: "9780743273565",
             title: "The Great Gatsby",
@@ -125,7 +125,7 @@ struct Book: Identifiable, Codable, Equatable {
             price: 9.99,
             currency: "USD"
         ),
-        Book(
+        GoogleBook(
             id: UUID(),
             isbn: "9780450040184",
             title: "The Shining",
@@ -151,7 +151,7 @@ struct Book: Identifiable, Codable, Equatable {
 }
 
 // JSON veri işleme yardımcıları
-extension Book {
+extension GoogleBook {
     struct GoogleBooksResponse: Decodable {
         let items: [VolumeInfo]
         
@@ -178,8 +178,8 @@ extension Book {
         }
     }
     
-    // Google Books API'den kitap verilerini Book nesnesine dönüştürür
-    static func fromGoogleBooksAPI(_ item: GoogleBooksResponse.VolumeInfo) -> Book {
+    // Google Books API'den kitap verilerini GoogleBook nesnesine dönüştürür
+    static func fromGoogleBooksAPI(_ item: GoogleBooksResponse.VolumeInfo) -> GoogleBook {
         let bookInfo = item.volumeInfo
         
         // ISBN'i bulmaya çalış
@@ -187,7 +187,7 @@ extension Book {
             $0.type == "ISBN_13" || $0.type == "ISBN_10" 
         })?.identifier
         
-        return Book(
+        return GoogleBook(
             id: UUID(),
             isbn: isbn,
             title: bookInfo.title,
@@ -220,23 +220,23 @@ struct GoogleBookResponse: Codable {
 
 struct GoogleBookItem: Codable {
     let id: String
-    let volumeInfo: VolumeInfo
+    let volumeInfo: GoogleVolumeInfo
 }
 
-struct VolumeInfo: Codable {
+struct GoogleVolumeInfo: Codable {
     let title: String
     let authors: [String]?
     let publisher: String?
     let publishedDate: String?
     let description: String?
-    let industryIdentifiers: [IndustryIdentifier]?
+    let industryIdentifiers: [GoogleIndustryIdentifier]?
     let pageCount: Int?
     let categories: [String]?
     let imageLinks: GoogleImageLinks?
     let language: String?
 }
 
-struct IndustryIdentifier: Codable {
+struct GoogleIndustryIdentifier: Codable {
     let type: String
     let identifier: String
 }
@@ -257,11 +257,11 @@ struct GoogleImageLinks: Codable {
 }
 
 extension GoogleBookItem {
-    func toBook() -> Book {
+    func toBook() -> GoogleBook {
         let isbn = volumeInfo.industryIdentifiers?.first(where: { $0.type == "ISBN_13" })?.identifier
             ?? volumeInfo.industryIdentifiers?.first(where: { $0.type == "ISBN_10" })?.identifier
         
-        return Book(
+        return GoogleBook(
             id: UUID(),
             isbn: isbn,
             title: volumeInfo.title,
