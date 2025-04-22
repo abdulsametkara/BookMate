@@ -8,14 +8,86 @@ class BookViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
+    // UserDefaults için anahtar sabitleri
+    private let userLibraryKey = "userLibrary"
+    private let wishlistBooksKey = "wishlistBooks"
+    
     init() {
-        loadBooks()
+        // Önce kaydedilmiş veriyi yükle
+        loadSavedData()
         
-        // Allbooks'a tüm örnek kitapları ekleyelim
-        print("BookViewModel başlatıldı, kitap sayısı: \(allBooks.count)")
+        // Eğer kaydedilmiş veri yoksa, örnek kitapları yükle
+        if userLibrary.isEmpty {
+            loadBooks()
+            
+            // Allbooks'a tüm örnek kitapları ekleyelim
+            print("BookViewModel başlatıldı, kitap sayısı: \(allBooks.count)")
+            
+            // Arama için ekstra kitaplar ekleyelim
+            addSampleBooksForSearch()
+        }
+    }
+    
+    // MARK: - Data Persistence Methods
+    
+    // Verileri yükle
+    private func loadSavedData() {
+        // Kütüphane kitaplarını yükle
+        if let savedLibraryData = UserDefaults.standard.data(forKey: userLibraryKey) {
+            do {
+                let decoder = JSONDecoder()
+                userLibrary = try decoder.decode([GoogleBook].self, from: savedLibraryData)
+                print("Kaydedilmiş kütüphane yüklendi: \(userLibrary.count) kitap")
+                
+                // allBooks'a kütüphane kitaplarını ekle
+                allBooks = userLibrary
+            } catch {
+                print("Kütüphane verisi yüklenirken hata: \(error.localizedDescription)")
+                userLibrary = []
+            }
+        }
         
-        // Arama için ekstra kitaplar ekleyelim
-        addSampleBooksForSearch()
+        // İstek listesi kitaplarını yükle
+        if let savedWishlistData = UserDefaults.standard.data(forKey: wishlistBooksKey) {
+            do {
+                let decoder = JSONDecoder()
+                wishlistBooks = try decoder.decode([GoogleBook].self, from: savedWishlistData)
+                print("Kaydedilmiş istek listesi yüklendi: \(wishlistBooks.count) kitap")
+                
+                // İstek listesindeki kitapları da allBooks'a ekle (eğer zaten yoksa)
+                for book in wishlistBooks {
+                    if !allBooks.contains(where: { $0.id == book.id }) {
+                        allBooks.append(book)
+                    }
+                }
+            } catch {
+                print("İstek listesi verisi yüklenirken hata: \(error.localizedDescription)")
+                wishlistBooks = []
+            }
+        }
+    }
+    
+    // Verileri kaydet
+    private func saveData() {
+        // Kütüphane kitaplarını kaydet
+        do {
+            let encoder = JSONEncoder()
+            let encodedLibrary = try encoder.encode(userLibrary)
+            UserDefaults.standard.set(encodedLibrary, forKey: userLibraryKey)
+            print("Kütüphane kaydedildi: \(userLibrary.count) kitap")
+        } catch {
+            print("Kütüphane verisi kaydedilirken hata: \(error.localizedDescription)")
+        }
+        
+        // İstek listesi kitaplarını kaydet
+        do {
+            let encoder = JSONEncoder()
+            let encodedWishlist = try encoder.encode(wishlistBooks)
+            UserDefaults.standard.set(encodedWishlist, forKey: wishlistBooksKey)
+            print("İstek listesi kaydedildi: \(wishlistBooks.count) kitap")
+        } catch {
+            print("İstek listesi verisi kaydedilirken hata: \(error.localizedDescription)")
+        }
     }
     
     private func loadBooks() {
@@ -99,10 +171,12 @@ class BookViewModel: ObservableObject {
     func addToWishlist(_ book: GoogleBook) {
         guard !isInWishlist(book) else { return }
         wishlistBooks.append(book)
+        saveData() // Veriyi kaydet
     }
     
     func removeFromWishlist(_ book: GoogleBook) {
         wishlistBooks.removeAll { $0.id == book.id }
+        saveData() // Veriyi kaydet
     }
     
     func isInWishlist(_ book: GoogleBook) -> Bool {
@@ -112,6 +186,7 @@ class BookViewModel: ObservableObject {
     func addToLibrary(_ book: GoogleBook) {
         guard !userLibrary.contains(where: { $0.id == book.id }) else { return }
         userLibrary.append(book)
+        saveData() // Veriyi kaydet
     }
     
     // MARK: - Book Management Functions
@@ -136,6 +211,7 @@ class BookViewModel: ObservableObject {
             allBooks.append(newBook)
         }
         
+        saveData() // Veriyi kaydet
         print("Kitap başarıyla eklendi: \(book.title)")
     }
     
@@ -149,6 +225,8 @@ class BookViewModel: ObservableObject {
             } else if status == .finished && userLibrary[index].finishedReading == nil {
                 userLibrary[index].finishedReading = Date()
             }
+            
+            saveData() // Veriyi kaydet
         }
     }
     
@@ -172,6 +250,8 @@ class BookViewModel: ObservableObject {
                 userLibrary[index].readingStatus = .finished
                 userLibrary[index].finishedReading = Date()
             }
+            
+            saveData() // Veriyi kaydet
         }
     }
     
@@ -188,5 +268,7 @@ class BookViewModel: ObservableObject {
             userLibrary[index].startedReading = Date()
             userLibrary[index].lastReadAt = Date()
         }
+        
+        saveData() // Veriyi kaydet
     }
 } 
