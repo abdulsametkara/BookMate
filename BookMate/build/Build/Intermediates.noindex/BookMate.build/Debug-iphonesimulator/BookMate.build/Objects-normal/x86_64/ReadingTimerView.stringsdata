@@ -1,0 +1,112 @@
+{
+  "source": "/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/ReadingTimerView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Okuma Zamanlayıcısı",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitap",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 56
+        }
+      },
+      {
+        "comment": "",
+        "key": "Bir kitap seçin",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 88
+        }
+      },
+      {
+        "comment": "",
+        "key": "Okuma Devam Ediyor",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 156
+        }
+      },
+      {
+        "comment": "",
+        "key": "Duraklatıldı",
+        "location": {
+          "startingColumn": 77,
+          "startingLine": 156
+        }
+      },
+      {
+        "comment": "",
+        "key": "Okuma İstatistikleri",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 226
+        }
+      },
+      {
+        "comment": "",
+        "key": "Bugün",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 237
+        }
+      },
+      {
+        "comment": "",
+        "key": "Toplam",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 252
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sayfa İlerlemesi",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 267
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld/%lld",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 272
+        }
+      },
+      {
+        "comment": "",
+        "key": "%%%lld",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 277
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitap Seçin",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 320
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kapat",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 321
+        }
+      }
+    ]
+  },
+  "version": 1
+}

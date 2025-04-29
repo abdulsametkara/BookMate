@@ -1,0 +1,96 @@
+{
+  "source": "/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/BookSearchView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Kitap Ara",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 116
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kapat",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 117
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitaplar aranıyor...",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitap adı, yazar veya ISBN ara",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 22
+        }
+      },
+      {
+        "comment": "",
+        "key": "Ara",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 53
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sonuç bulunamadı",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 90
+        }
+      },
+      {
+        "comment": "",
+        "key": "Farklı arama terimleri deneyebilirsiniz.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 92
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kütüphaneye Ekle",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 126
+        }
+      },
+      {
+        "comment": "",
+        "key": "İstek Listesine Ekle",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 130
+        }
+      },
+      {
+        "comment": "",
+        "key": "İptal",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 134
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld sayfa",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 263
+        }
+      }
+    ]
+  },
+  "version": 1
+}

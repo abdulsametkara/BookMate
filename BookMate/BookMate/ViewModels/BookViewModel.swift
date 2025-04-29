@@ -8,6 +8,9 @@ class BookViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
+    // UserViewModel referansı - istatistikleri güncellemek için
+    var userViewModel: BookMate.UserViewModel?
+    
     // UserDefaults için anahtar sabitleri
     private let userLibraryKey = "userLibrary"
     private let wishlistBooksKey = "wishlistBooks"
@@ -67,8 +70,8 @@ class BookViewModel: ObservableObject {
         }
     }
     
-    // Verileri kaydet
-    private func saveData() {
+    // Verileri kaydet - artık public olarak kullanılabilir
+    func saveData() {
         // Kütüphane kitaplarını kaydet
         do {
             let encoder = JSONEncoder()
@@ -147,6 +150,7 @@ class BookViewModel: ObservableObject {
         
         // Kitapları tüm listelere ekle
         allBooks.append(contentsOf: extraSampleBooks)
+        userLibrary.append(contentsOf: extraSampleBooks) // Kütüphaneye de ekleyelim
         print("Arama için ek örnek kitaplar eklendi. Toplam kitap sayısı: \(allBooks.count)")
     }
     
@@ -156,8 +160,12 @@ class BookViewModel: ObservableObject {
         userLibrary.first { $0.readingStatus == .inProgress }
     }
     
+    var currentlyReadingBooks: [GoogleBook] {
+        userLibrary.filter { $0.readingStatus == .inProgress }
+    }
+    
     var recentlyAddedBooks: [GoogleBook] {
-        userLibrary.sorted { (book1: GoogleBook, book2: GoogleBook) -> Bool in
+        allBooks.sorted { (book1: GoogleBook, book2: GoogleBook) -> Bool in
             return (book1.dateAdded ?? Date()) > (book2.dateAdded ?? Date())
         }.prefix(5).map { $0 }
     }
@@ -170,13 +178,23 @@ class BookViewModel: ObservableObject {
     
     func addToWishlist(_ book: GoogleBook) {
         guard !isInWishlist(book) else { return }
+        
+        // Kitabı istek listesine ekle
         wishlistBooks.append(book)
+        
+        // Tüm kitaplar listesine de ekle (eğer zaten yoksa)
+        if !allBooks.contains(where: { $0.id == book.id }) {
+            allBooks.append(book)
+        }
+        
         saveData() // Veriyi kaydet
+        objectWillChange.send() // UI güncellemesi için
     }
     
     func removeFromWishlist(_ book: GoogleBook) {
         wishlistBooks.removeAll { $0.id == book.id }
         saveData() // Veriyi kaydet
+        objectWillChange.send() // UI güncellemesi için
     }
     
     func isInWishlist(_ book: GoogleBook) -> Bool {
@@ -184,16 +202,82 @@ class BookViewModel: ObservableObject {
     }
     
     func addToLibrary(_ book: GoogleBook) {
+        // Eğer kitap zaten kütüphanede varsa, işlem yapma
         guard !userLibrary.contains(where: { $0.id == book.id }) else { return }
-        userLibrary.append(book)
+        
+        // Kitabı şu anki tarihle birlikte ekle
+        var newBook = book
+        newBook.dateAdded = Date()
+        newBook.lastReadAt = Date()
+        
+        // Kütüphaneye ekle
+        userLibrary.append(newBook)
+        
+        // Tüm kitaplar listesine de ekle (eğer zaten yoksa)
+        if !allBooks.contains(where: { $0.id == book.id }) {
+            allBooks.append(newBook)
+        }
+        
         saveData() // Veriyi kaydet
+        objectWillChange.send() // UI güncellemesi için
+        print("Kitap başarıyla kütüphaneye eklendi: \(book.title)")
+    }
+    
+    // İstek listesinden kütüphaneye ekle
+    func moveFromWishlistToLibrary(_ book: GoogleBook) {
+        // Kitabı kütüphaneye ekle
+        if !userLibrary.contains(where: { $0.id == book.id }) {
+            var libraryBook = book
+            libraryBook.dateAdded = Date()
+            userLibrary.append(libraryBook)
+            
+            // İstek listesinden kaldır (opsiyonel)
+            wishlistBooks.removeAll { $0.id == book.id }
+            
+            saveData()
+            objectWillChange.send()
+            print("Kitap istek listesinden kütüphaneye taşındı: \(book.title)")
+        }
     }
     
     // MARK: - Book Management Functions
     
+    func updateProgress(for book: GoogleBook, newPage: Int, completed: Bool) {
+        if let index = userLibrary.firstIndex(where: { $0.id == book.id }) {
+            // Update page
+            userLibrary[index].currentPage = newPage
+            userLibrary[index].lastReadAt = Date()
+            
+            // Update reading progress percentage
+            if let pageCount = userLibrary[index].pageCount, pageCount > 0 {
+                let progressPercentage = min(Double(newPage) / Double(pageCount) * 100.0, 100.0)
+                userLibrary[index].readingProgressPercentage = progressPercentage
+            }
+            
+            // Update status based on completed flag
+            if completed {
+                userLibrary[index].readingStatus = .finished
+                userLibrary[index].finishedReading = Date()
+                userLibrary[index].readingProgressPercentage = 100.0
+            } else {
+                userLibrary[index].readingStatus = .inProgress
+                if userLibrary[index].startedReading == nil {
+                    userLibrary[index].startedReading = Date()
+                }
+            }
+            
+            saveData()
+            
+            // Kullanıcı istatistiklerini güncelle
+            if let userViewModel = self.userViewModel {
+                userViewModel.updateUserStatistics(with: self)
+            }
+        }
+    }
+    
     func addBook(_ book: GoogleBook) {
         // Kitabın zaten kütüphanede olup olmadığını kontrol et
-        if userLibrary.contains(where: { $0.title == book.title && (book.authors.first ?? "") == ($0.authors.first ?? "") }) {
+        if userLibrary.contains(where: { $0.id == book.id }) {
             print("Bu kitap zaten kütüphanenizde var.")
             return
         }
@@ -212,6 +296,7 @@ class BookViewModel: ObservableObject {
         }
         
         saveData() // Veriyi kaydet
+        objectWillChange.send() // UI güncellemesi için
         print("Kitap başarıyla eklendi: \(book.title)")
     }
     
@@ -235,6 +320,12 @@ class BookViewModel: ObservableObject {
             userLibrary[index].currentPage = page
             userLibrary[index].lastReadAt = Date()
             
+            // Update reading progress percentage
+            if let pageCount = userLibrary[index].pageCount, pageCount > 0 {
+                let progressPercentage = min(Double(page) / Double(pageCount) * 100.0, 100.0)
+                userLibrary[index].readingProgressPercentage = progressPercentage
+            }
+            
             // If book wasn't in progress, update status
             if userLibrary[index].readingStatus != .inProgress {
                 userLibrary[index].readingStatus = .inProgress
@@ -245,13 +336,19 @@ class BookViewModel: ObservableObject {
                 }
             }
             
-            // If current page equals page count, mark as finished
-            if page >= (book.pageCount ?? 1) {
+            // If current page equals or exceeds page count, mark as finished
+            if let pageCount = book.pageCount, page >= pageCount {
                 userLibrary[index].readingStatus = .finished
                 userLibrary[index].finishedReading = Date()
+                userLibrary[index].readingProgressPercentage = 100.0
             }
             
             saveData() // Veriyi kaydet
+            
+            // Kullanıcı istatistiklerini güncelle
+            if let userViewModel = self.userViewModel {
+                userViewModel.updateUserStatistics(with: self)
+            }
         }
     }
     
@@ -270,5 +367,78 @@ class BookViewModel: ObservableObject {
         }
         
         saveData() // Veriyi kaydet
+    }
+    
+    // Kütüphaneden kitap silme işlemi
+    func removeFromLibrary(_ book: GoogleBook) {
+        print("Kütüphaneden kitap kaldırılıyor: \(book.title)")
+        
+        // Silme işleminden önce kitabı al
+        _ = userLibrary.first(where: { $0.id == book.id })
+        
+        // Kütüphaneden kitabı sil
+        let initialCount = userLibrary.count
+        userLibrary.removeAll { $0.id == book.id }
+        let finalCount = userLibrary.count
+        
+        // Silme işleminin sonucunu kontrol et
+        if initialCount != finalCount {
+            print("Kitap başarıyla kaldırıldı: \(book.title)")
+            
+            // Değişikliği hemen yayınla
+            objectWillChange.send()
+            
+            // Değişiklikleri kaydedelim
+            saveData()
+            
+            // Son durumu konsola yazdır
+            print("Kütüphane güncel kitap sayısı: \(userLibrary.count)")
+        } else {
+            print("Kitap kaldırılamadı! ID: \(book.id), Title: \(book.title)")
+            
+            // Alternatif silme yöntemi dene
+            if let index = userLibrary.firstIndex(where: { $0.id == book.id }) {
+                userLibrary.remove(at: index)
+                print("Alternatif yöntemle kitap kaldırıldı: \(book.title)")
+                
+                // Değişikliği hemen yayınla
+                objectWillChange.send()
+                
+                // Değişiklikleri kaydedelim
+                saveData()
+            }
+        }
+        
+        // allBooks listesindeki ilgili kitabın durumunu notStarted olarak işaretle
+        // böylece yeniden eklendiğinde başlangıç durumunda olur
+        if let index = allBooks.firstIndex(where: { $0.id == book.id }) {
+            allBooks[index].readingStatus = .notStarted
+            allBooks[index].readingProgressPercentage = 0
+            allBooks[index].currentPage = 0
+            allBooks[index].startedReading = nil
+            allBooks[index].finishedReading = nil
+        }
+    }
+    
+    // Yeni eklenen kitapları da kütüphaneye otomatik ekle
+    func synchronizeBooks() {
+        var didUpdate = false
+        
+        // Tüm kitaplar ile kütüphane kitaplarını senkronize et
+        for book in allBooks {
+            if !userLibrary.contains(where: { $0.id == book.id }) {
+                var updatedBook = book
+                updatedBook.dateAdded = updatedBook.dateAdded ?? Date()
+                userLibrary.append(updatedBook)
+                didUpdate = true
+            }
+        }
+        
+        // Değişiklik olduysa kaydet ve UI'ı güncelle
+        if didUpdate {
+            saveData()
+            objectWillChange.send()
+            print("Kütüphane kitapları senkronize edildi. Güncel kitap sayısı: \(userLibrary.count)")
+        }
     }
 } 

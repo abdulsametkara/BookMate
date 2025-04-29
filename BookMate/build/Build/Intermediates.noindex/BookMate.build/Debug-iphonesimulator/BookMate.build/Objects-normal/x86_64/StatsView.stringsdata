@@ -1,0 +1,64 @@
+{
+  "source": "/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/StatsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "İstatistikler",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 94
+        }
+      },
+      {
+        "comment": "",
+        "key": "Okuma Serisi",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Gün",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Şu anki serisi",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "En uzun serisi: %lld gün",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "Favori Türler",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 64
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,48 @@
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/HomeView.swift":
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/HomeView.o"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/HomeView.swiftconstvalues"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/HomeView.dia"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/HomeView.swiftdeps"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/HomeView.d"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/ViewModels/UserViewModel.swift":
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/UserViewModel.o"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/UserViewModel.swiftdeps"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/UserViewModel.dia"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/UserViewModel.d"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/UserViewModel.swiftconstvalues"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Models/AppTheme.swift":
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/AppTheme.d"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/AppTheme.swiftdeps"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/AppTheme.dia"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/AppTheme.o"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/AppTheme.swiftconstvalues"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Models/Book.swift":
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/Book.swiftconstvalues"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/Book.dia"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/Book.d"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/Book.o"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/Book.swiftdeps"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Utilities/DateExtensions.swift":
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/DateExtensions.dia"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/DateExtensions.d"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/DateExtensions.o"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/DateExtensions.swiftconstvalues"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/DateExtensions.swiftdeps"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/BookshelfView.swift":
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookshelfView.dia"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookshelfView.swiftdeps"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookshelfView.o"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookshelfView.swiftconstvalues"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookshelfView.d"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/SearchView.swift":
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/SearchView.o"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/SearchView.d"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/SearchView.swiftdeps"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/SearchView.dia"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/SearchView.swiftconstvalues"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Models/ReadingStatistics.swift":
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingStatistics.swiftdeps"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingStatistics.d"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingStatistics.dia"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingStatistics.o"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingStatistics.swiftconstvalues"

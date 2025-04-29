@@ -1,0 +1,160 @@
+{
+  "source": "/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/BookDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Şu An Bunu Okuyorum",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "İşlem Tamamlandı",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ kitabı şu an okuduğunuz kitap olarak işaretlendi.",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tamam",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Yayın tarihi: %@",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 162
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld sayfa",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 168
+        }
+      },
+      {
+        "comment": "",
+        "key": "Okuma Durumu",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 191
+        }
+      },
+      {
+        "comment": "",
+        "key": "Okuma Durumu",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 194
+        }
+      },
+      {
+        "comment": "",
+        "key": "Başlamadım",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 195
+        }
+      },
+      {
+        "comment": "",
+        "key": "Okuyorum",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 196
+        }
+      },
+      {
+        "comment": "",
+        "key": "Bitirdim",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 197
+        }
+      },
+      {
+        "comment": "",
+        "key": "İlerleme: %%%lld",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 213
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld / %lld sayfa",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 217
+        }
+      },
+      {
+        "comment": "",
+        "key": "Açıklama",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 244
+        }
+      },
+      {
+        "comment": "",
+        "key": "Henüz not eklenmemiş.",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 283
+        }
+      },
+      {
+        "comment": "",
+        "key": "Notlarım",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 256
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kaydet",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 270
+        }
+      },
+      {
+        "comment": "",
+        "key": "Düzenle",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 270
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitap Bilgileri",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 296
+        }
+      }
+    ]
+  },
+  "version": 1
+}

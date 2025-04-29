@@ -1,0 +1,160 @@
+{
+  "source": "/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/WishlistView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "İstek Listem",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "İstek listenizde henüz kitap yok",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "Okumak istediğiniz kitapları buraya ekleyebilirsiniz",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitap Ekle",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitap İşlemleri",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 159
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lf %@",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 140
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kütüphaneye Ekle",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 160
+        }
+      },
+      {
+        "comment": "",
+        "key": "Detayları Görüntüle",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 165
+        }
+      },
+      {
+        "comment": "",
+        "key": "Silmek İstiyorum",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 169
+        }
+      },
+      {
+        "comment": "",
+        "key": "İstek Listesine Ekle",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 441
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kapat",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 442
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitaplar aranıyor...",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 319
+        }
+      },
+      {
+        "comment": "",
+        "key": "Çevrimdışı mod",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 250
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitap adı, yazar veya ISBN ara",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 266
+        }
+      },
+      {
+        "comment": "",
+        "key": "Ara",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 305
+        }
+      },
+      {
+        "comment": "",
+        "key": "Yeniden Dene",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 341
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sonuç bulunamadı",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 359
+        }
+      },
+      {
+        "comment": "",
+        "key": "Farklı arama terimleri deneyebilirsiniz.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 361
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld sayfa",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 407
+        }
+      }
+    ]
+  },
+  "version": 1
+}

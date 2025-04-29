@@ -2,6 +2,7 @@ import Foundation
 
 enum ReadingGoalType: String, Codable, CaseIterable {
     case booksPerYear
+    case booksPerMonth
     case pagesPerDay
     case minutesPerDay
     
@@ -9,6 +10,8 @@ enum ReadingGoalType: String, Codable, CaseIterable {
         switch self {
         case .booksPerYear:
             return "Yıllık Kitap"
+        case .booksPerMonth:
+            return "Aylık Kitap"
         case .pagesPerDay:
             return "Günlük Sayfa"
         case .minutesPerDay:

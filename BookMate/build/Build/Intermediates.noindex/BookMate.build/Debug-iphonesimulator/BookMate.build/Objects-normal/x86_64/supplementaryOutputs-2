@@ -1,0 +1,48 @@
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/BookSearchView.swift":
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookSearchView.swiftconstvalues"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookSearchView.o"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookSearchView.dia"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookSearchView.d"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookSearchView.swiftdeps"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Models/BookImageLinks.swift":
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookImageLinks.o"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookImageLinks.swiftconstvalues"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookImageLinks.swiftdeps"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookImageLinks.dia"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookImageLinks.d"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/Components/BookCardView.swift":
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookCardView.swiftconstvalues"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookCardView.o"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookCardView.d"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookCardView.swiftdeps"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookCardView.dia"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/ViewModels/LibraryViewModel.swift":
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/LibraryViewModel.dia"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/LibraryViewModel.swiftdeps"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/LibraryViewModel.swiftconstvalues"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/LibraryViewModel.o"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/LibraryViewModel.d"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/Components/BookListComponent.swift":
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookListComponent.dia"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookListComponent.d"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookListComponent.o"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookListComponent.swiftconstvalues"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/BookListComponent.swiftdeps"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Models/PrivacySettings.swift":
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/PrivacySettings.o"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/PrivacySettings.swiftconstvalues"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/PrivacySettings.swiftdeps"
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/PrivacySettings.d"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/PrivacySettings.dia"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Models/ReadingGoal.swift":
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingGoal.d"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingGoal.o"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingGoal.swiftconstvalues"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingGoal.dia"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingGoal.swiftdeps"
+"/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/ReadingTimerView.swift":
+  dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingTimerView.d"
+  swift-dependencies: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingTimerView.swiftdeps"
+  const-values: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingTimerView.swiftconstvalues"
+  object: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingTimerView.o"
+  diagnostics: "/Users/abdulsamed/Desktop/proje/BookMate/build/Build/Intermediates.noindex/BookMate.build/Debug-iphonesimulator/BookMate.build/Objects-normal/x86_64/ReadingTimerView.dia"

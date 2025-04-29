@@ -1,0 +1,32 @@
+{
+  "source": "/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/Components/BookCardView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Kitaplığınızda",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "Okuyorsun - %%%lld tamamlandı",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tamamlandı",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 43
+        }
+      }
+    ]
+  },
+  "version": 1
+}

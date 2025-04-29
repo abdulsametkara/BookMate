@@ -52,6 +52,7 @@ struct GoogleBook: Identifiable, Codable, Equatable {
     var readingStatus: ReadingStatus = .notStarted
     var readingProgressPercentage: Double = 0
     var userNotes: String?
+    var userRating: Int? // Kullanıcının kitaba verdiği puanlama (1-5 arası)
     
     // Fiyat bilgileri
     var price: Double?

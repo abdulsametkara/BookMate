@@ -1,0 +1,16 @@
+{
+  "source": "/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/Components/BookListComponent.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Tümünü Gör",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 34
+        }
+      }
+    ]
+  },
+  "version": 1
+}

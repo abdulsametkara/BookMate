@@ -16,4 +16,8 @@ struct PrivacySettings: Codable, Equatable {
         self.shareStats = shareStats
         self.shareActivity = shareActivity
     }
+    
+    static var `default`: PrivacySettings {
+        return PrivacySettings()
+    }
 } 

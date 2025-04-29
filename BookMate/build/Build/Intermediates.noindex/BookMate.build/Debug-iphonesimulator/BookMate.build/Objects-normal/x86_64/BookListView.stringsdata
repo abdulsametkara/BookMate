@@ -1,0 +1,96 @@
+{
+  "source": "/Users/abdulsamed/Desktop/proje/BookMate/BookMate/Views/BookListView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Kitap, yazar veya yayınevi ara",
+        "location": {
+          "startingColumn": 107,
+          "startingLine": 93
+        }
+      },
+      {
+        "comment": "",
+        "key": "Sil",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 80
+        }
+      },
+      {
+        "comment": "",
+        "key": "Arama sonucu bulunamadı",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 142
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ durumunda kitap yok",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 146
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitaplığınız boş",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 155
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tüm Kitapları Göster",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 150
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitap Ekle",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 162
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%%",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 224
+        }
+      },
+      {
+        "comment": "",
+        "key": "Bu kısımda Google Books API'den kitap arama ve seçme fonksiyonları eklenecek",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 365
+        }
+      },
+      {
+        "comment": "",
+        "key": "Kitap Ekle",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 367
+        }
+      },
+      {
+        "comment": "",
+        "key": "İptal",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 370
+        }
+      }
+    ]
+  },
+  "version": 1
+}

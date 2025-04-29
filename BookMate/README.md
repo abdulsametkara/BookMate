@@ -102,6 +102,21 @@ BookMate açık kaynaklı bir proje değildir, ancak geri bildirimlerinizi ve ö
 
 BookMate, kitapseverler için modern ve kullanışlı bir kitap takip çözümü sunmak amacıyla geliştirilmiştir. Projenin geliştirilmesinde Swift ve SwiftUI'nin en güncel özellikleri kullanılarak, kullanıcı dostu ve estetik bir arayüz oluşturulması hedeflenmiştir.
 
+### Kullanıcı Hesabı Yönetimi
+- Kayıt işlemi: Kullanıcılar, e-posta ve şifre ile kayıt olabilirler
+- Profil bilgileri: Kullanıcılar isim, soyisim, biyografi gibi bilgilerini ekleyebilirler
+- Oturum yönetimi: UserDefaults üzerinde kullanıcı bilgileri saklanır
+- Otomatik giriş: Uygulama açıldığında kayıtlı kullanıcı varsa otomatik giriş yapılır
+
+### Veri Saklama
+- Kullanıcı bilgileri: UserDefaults'ta JSON formatında saklanır
+- Kitap verileri: Google Books API üzerinden çekilir ve yerel veritabanında saklanır
+
+### Mimari
+- MVVM (Model-View-ViewModel) mimarisi kullanılmıştır
+- SwiftUI ile modern ve duyarlı kullanıcı arayüzü
+- Combine framework ile reaktif programlama
+
 ---
 
 © 2024 BookMate. Tüm hakları saklıdır. 

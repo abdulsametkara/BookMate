@@ -120,8 +120,23 @@ struct BookshelfView: View {
     // Kitaplık rafları
     private var bookshelvesView: some View {
         VStack(spacing: 40) {
-            ForEach(0..<min(5, (bookViewModel.userLibrary.count + 4) / 5)) { shelfIndex in
-                modernBookshelfView(shelfIndex: shelfIndex)
+            // Hesaplama yapmadan önce değeri bir değişkene atayalım ve ondan sonra kullanabiliriz
+            let totalShelves = min(5, (bookViewModel.userLibrary.count + 4) / 5)
+            // ForEach için range oluştururken 0...4 gibi sabit sayılar kullanmalıyız, ama totalShelves'e göre yapabiliriz
+            if totalShelves >= 1 {
+                modernBookshelfView(shelfIndex: 0)
+            }
+            if totalShelves >= 2 {
+                modernBookshelfView(shelfIndex: 1)
+            }
+            if totalShelves >= 3 {
+                modernBookshelfView(shelfIndex: 2)
+            }
+            if totalShelves >= 4 {
+                modernBookshelfView(shelfIndex: 3)
+            }
+            if totalShelves >= 5 {
+                modernBookshelfView(shelfIndex: 4)
             }
         }
         .padding(.vertical, 10)

@@ -17,11 +17,30 @@ struct BookMateApp: App {
         return BookMate.UserViewModel()
     }()
     
+    // Auth view model ekle
+    @StateObject private var authViewModel = AuthViewModel()
+    
+    init() {
+        // ViewModels arası bağlantıyı kur
+        bookViewModel.userViewModel = userViewModel
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(bookViewModel)
                 .environmentObject(userViewModel)
+                .environmentObject(authViewModel)
+                .onAppear {
+                    // Verileri yükle
+                    bookViewModel.synchronizeBooks()
+                    userViewModel.refreshUserData()
+                    
+                    // İstatistikleri güncelle
+                    if userViewModel.isLoggedIn {
+                        userViewModel.updateUserStatistics(with: bookViewModel)
+                    }
+                }
         }
     }
 }

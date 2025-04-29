@@ -266,7 +266,7 @@ struct AddToWishlistView: View {
                     TextField("Kitap adı, yazar veya ISBN ara", text: $searchText)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
-                        .onChange(of: searchText) { newValue in
+                        .onChange(of: searchText) { _, newValue in
                             // Debounce uygula - kullanıcı yazmayı bitirdikten 0.5 saniye sonra ara
                             searchTask?.cancel()
                             
@@ -569,9 +569,9 @@ struct AddToWishlistView: View {
                             if let coverId = doc["cover_i"] as? Int {
                                 thumbnailUrl = "https://covers.openlibrary.org/b/id/\(coverId)-M.jpg"
                             }
-                            
-                            // ISBN
-                            var isbn: String? = nil
+                        
+                        // ISBN
+                        var isbn: String? = nil
                             if let isbns = doc["isbn"] as? [String], !isbns.isEmpty {
                                 isbn = isbns[0]
                             }
@@ -598,14 +598,14 @@ struct AddToWishlistView: View {
                             var publisher: String? = nil
                             if let publishers = doc["publisher"] as? [String], !publishers.isEmpty {
                                 publisher = publishers[0]
-                            }
-                            
-                            // Kitap nesnesi oluştur
-                            let book = GoogleBook(
+                        }
+                        
+                        // Kitap nesnesi oluştur
+                        let book = GoogleBook(
                                 id: UUID(),
-                                isbn: isbn,
-                                title: title,
-                                authors: authors,
+                            isbn: isbn,
+                            title: title,
+                            authors: authors,
                                 description: nil, // OpenLibrary temel aramada açıklama vermiyor
                                 pageCount: pageCount,
                                 categories: categories,
@@ -619,14 +619,14 @@ struct AddToWishlistView: View {
                                 publisher: publisher,
                                 language: doc["language"] as? String,
                                 readingStatus: .notStarted
-                            )
-                            
-                            books.append(book)
-                        }
+                        )
                         
+                        books.append(book)
+                    }
+                    
                         if !books.isEmpty {
                             self.searchResults = books
-                        } else {
+                    } else {
                             self.errorMessage = "'\(searchTerm)' için sonuç bulunamadı."
                         }
                     } else {

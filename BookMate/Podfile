@@ -1,0 +1,46 @@
+# IMPORTANT: Looks like CocoaPods is not installed on this system.
+# Instead, follow these instructions to add Firebase using Swift Package Manager:
+# 
+# 1. In Xcode, select File > Add Packages...
+# 2. Enter the Firebase Apple platform SDK URL: https://github.com/firebase/firebase-ios-sdk
+# 3. Select the Firebase products you need:
+#    - FirebaseCore
+#    - FirebaseAuth
+#    - FirebaseFirestore
+#    - FirebaseStorage (if needed)
+#    - FirebaseMessaging (if needed)
+# 4. Click "Add Package"
+#
+# If you prefer to use CocoaPods, first install it with:
+# $ sudo gem install cocoapods
+# Then run:
+# $ pod install
+
+platform :ios, '15.0'
+
+target 'BookMate' do
+  use_frameworks!
+
+  # Firebase
+  pod 'Firebase/Core'
+  pod 'Firebase/Auth'
+  pod 'Firebase/Firestore'
+  pod 'Firebase/Storage'
+  pod 'Firebase/Messaging'
+
+  target 'BookMateTests' do
+    inherit! :search_paths
+  end
+
+  target 'BookMateUITests' do
+    inherit! :search_paths
+  end
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+    end
+  end
+end 
